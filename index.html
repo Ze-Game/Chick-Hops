@@ -6,190 +6,76 @@
     <title>Chick Hops</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #d0e8f2; /* Light blue background */
+            background-color: #b0e0e6; /* Light blue background */
+            font-family: Arial, sans-serif;
         }
-
-        #startPage, #gamePage, #gameOverPage, #shopPage {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 300px; /* Smaller width */
-            height: 400px; /* Smaller height */
-            border: 2px solid #444;
-            border-radius: 10px;
-            background-color: #fff; /* White background */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            padding: 20px;
-        }
-
-        #startPage {
-            display: flex; /* Center items */
-        }
-
-        h1, h2 {
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        button {
+        h1 {
+            font-size: 36px;
+            color: #ff6347; /* Tomato color */
             margin: 10px;
+        }
+        h2 {
+            font-size: 24px;
+            color: #4682b4; /* Steel blue */
+            margin: 10px;
+        }
+        button {
             padding: 10px 20px;
-            font-size: 16px;
+            font-size: 18px;
+            margin: 10px;
             cursor: pointer;
             border: none;
             border-radius: 5px;
-            background-color: #4CAF50; /* Green */
+            background-color: #ff6347; /* Tomato color */
             color: white;
         }
-
-        #gameCanvas {
-            background-color: #f0f0f0;
-            border: 1px solid #444;
-            width: 100%; /* Full width of the container */
-            height: 200px; /* Smaller height for game */
-            position: relative; /* For positioning score */
+        button:hover {
+            background-color: #ff4500; /* OrangeRed */
         }
-
-        #score {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 20px;
-            color: #333;
-        }
-
-        #gameOverPage {
-            display: flex;
-        }
-
-        .hidden {
-            display: none;
+        .container {
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div id="startPage">
+    <div class="container">
         <h1>Chick Hops</h1>
-        <h2 id="welcomeBack"></h2>
+        <h2 id="welcomeMessage">Welcome back, <span id="username"></span>!</h2>
         <button id="startButton">Start</button>
         <button id="shopButton">Shop</button>
     </div>
 
-    <div id="gamePage" class="hidden">
-        <canvas id="gameCanvas"></canvas>
-        <div id="score">Score: 0</div>
-    </div>
-
-    <div id="gameOverPage" class="hidden">
-        <h2>Game Over</h2>
-        <div id="finalScore"></div>
-        <div id="highScore"></div>
-        <button id="restartButton">Restart</button>
-        <button id="shopButtonOver">Shop</button>
-    </div>
-
-    <div id="shopPage" class="hidden">
-        <h2>Shop</h2>
-        <div id="skins"></div>
-        <button id="backToStartButton">Back</button>
-    </div>
-
     <script>
-        let userName = localStorage.getItem('username');
-        const startButton = document.getElementById('startButton');
-        const welcomeBack = document.getElementById('welcomeBack');
-        const startPage = document.getElementById('startPage');
-        const gamePage = document.getElementById('gamePage');
-        const gameOverPage = document.getElementById('gameOverPage');
-        const shopPage = document.getElementById('shopPage');
-        const scoreDisplay = document.getElementById('score');
-        const finalScoreDisplay = document.getElementById('finalScore');
-        const highScoreDisplay = document.getElementById('highScore');
+        // Set username from local storage if it exists
+        const username = localStorage.getItem('username');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const usernameSpan = document.getElementById('username');
 
-        let score = 0;
-        let highScore = localStorage.getItem('highScore') || 0;
-
-        // Initialize pages
-        if (userName) {
-            welcomeBack.innerText = `Welcome back, ${userName}!`;
+        if (username) {
+            usernameSpan.textContent = username;
         } else {
-            welcomeBack.innerText = "";
+            welcomeMessage.style.display = 'none'; // Hide welcome message if no username
         }
 
-        function showStartPage() {
-            startPage.style.display = 'flex';
-            gamePage.style.display = 'none';
-            gameOverPage.style.display = 'none';
-            shopPage.style.display = 'none';
-        }
+        // Start button functionality
+        document.getElementById('startButton').addEventListener('click', function() {
+            // Function to navigate to game page
+            // (replace with actual game page code)
+            alert("Starting the game..."); // Placeholder for game start
+        });
 
-        function startGame() {
-            score = 0;
-            scoreDisplay.innerText = `Score: ${score}`;
-            startPage.style.display = 'none';
-            gamePage.style.display = 'flex';
-
-            // Initialize game variables and logic here
-            // Example logic for jumping and scoring
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
-
-            let chickY = canvas.height - 30; // Ground level
-            let chickJumping = false;
-
-            canvas.addEventListener('click', () => {
-                if (!chickJumping) {
-                    chickJumping = true;
-                    jump();
-                }
-            });
-
-            function jump() {
-                let jumpHeight = 0;
-                const jumpInterval = setInterval(() => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-                    if (jumpHeight < 60) { // Jump height limit
-                        jumpHeight += 4;
-                        chickY -= 4;
-                    } else {
-                        jumpHeight = 0; // Reset jump height
-                        clearInterval(jumpInterval);
-                        chickJumping = false;
-                        chickY = canvas.height - 30; // Reset to ground level
-                    }
-                    drawChick();
-                }, 20);
-            }
-
-            function drawChick() {
-                ctx.fillStyle = 'yellow'; // Chick color
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2, chickY, 15, 0, Math.PI * 2, true); // Draw chick
-                ctx.fill();
-            }
-            
-            // Add game logic for fences and scoring here
-        }
-
-        function showGameOver() {
-            gamePage.style.display = 'none';
-            gameOverPage.style.display = 'flex';
-            finalScoreDisplay.innerText = `Final Score: ${score}`;
-            highScore = Math.max(score, highScore);
-            localStorage.setItem('highScore', highScore);
-            highScoreDisplay.innerText = `High Score: ${highScore}`;
-        }
-
-        startButton.addEventListener('click', startGame);
-        // Other button event listeners can be added here
-        window.onload = showStartPage; // Show start page on load
+        // Shop button functionality
+        document.getElementById('shopButton').addEventListener('click', function() {
+            // Function to navigate to shop page
+            // (replace with actual shop page code)
+            alert("Navigating to shop..."); // Placeholder for shop
+        });
     </script>
 </body>
 </html>
