@@ -115,6 +115,7 @@
             document.getElementById('welcomeUsername').innerText = username;
             document.getElementById('welcomeBack').style.display = 'block';
             document.getElementById('startGameButton').addEventListener('click', startGame);
+            document.getElementById('startScreen').style.display = 'none'; // Hide the start screen
         } else {
             document.getElementById('startButton').addEventListener('click', startGame);
         }
