@@ -36,12 +36,17 @@
         h1, h2 {
             margin: 0;
         }
+        #leaderboard {
+            margin-top: 20px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
+        <input id="usernameInput" type="text" placeholder="Enter Username" />
         <button id="startButton">Start Game</button>
     </div>
 
@@ -54,6 +59,7 @@
         <div id="finalScore"></div>
         <div id="quote"></div>
         <button id="restartButton">Restart Game</button>
+        <div id="leaderboard"></div>
     </div>
 
     <div id="scoreboard"></div>
@@ -77,8 +83,16 @@
         let highScore = 0;
         let isGameOver = false;
         let spawnCounter = 0;
+        let username = '';
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
         function startGame() {
+            username = document.getElementById('usernameInput').value;
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'none';
             canvas.style.display = 'block';
@@ -152,17 +166,17 @@
 
         function updateFences() {
             spawnCounter++;
-            if (spawnCounter > 80 + Math.random() * 50) {  // Closer spawn rate
-                let fenceHeight = 30; // Lower fence height for chick to jump over
+            if (spawnCounter > 80 + Math.random() * 50) {
+                let fenceHeight = 30;
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
                 spawnCounter = 0;
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= 3; // Move fence to the left
+                fences[i].x -= 3;
                 if (fences[i].x + 20 < 0) {
                     fences.splice(i, 1);
-                    score++; // Increment score when fence passes
+                    score++;
                     document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
                 }
             }
@@ -181,8 +195,22 @@
             canvas.style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'block';
             document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
+
+            // Save to leaderboard
             highScore = Math.max(highScore, score);
             document.getElementById('scoreboard').innerHTML = `High Score: ${highScore}`;
+            leaderboard.push({ username, score });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 10); // Keep only top 10
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+
+            // Display leaderboard
+            let leaderboardHTML = '<h3>Leaderboard</h3><ol>';
+            for (let entry of leaderboard) {
+                leaderboardHTML += `<li>${entry.username}: ${entry.score}</li>`;
+            }
+            leaderboardHTML += '</ol>';
+            document.getElementById('leaderboard').innerHTML = leaderboardHTML;
 
             // Display random quote based on score
             let quote;
@@ -227,17 +255,15 @@
             document.getElementById('quote').innerHTML = quote;
         }
 
-        // Start and restart buttons
-        document.getElementById('startButton').onclick = startGame;
-        document.getElementById('restartButton').onclick = startGame;
-
-        // Chick jumping on canvas tap
         canvas.addEventListener('click', () => {
-            if (!isGameOver && !chick.isJumping) {
-                chick.velocityY = -10;  // Jump only when the chick is on the ground
-                chick.isJumping = true; // Set jumping status to true
+            if (!chick.isJumping) {
+                chick.velocityY = -10;
+                chick.isJumping = true;
             }
         });
+
+        document.getElementById('startButton').addEventListener('click', startGame);
+        document.getElementById('restartButton').addEventListener('click', startGame);
     </script>
 </body>
 </html>
