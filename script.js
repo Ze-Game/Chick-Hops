@@ -66,4 +66,5 @@ document.getElementById('restartButton').addEventListener('click', startGame);
 function resetHighScore() {
     highScore = 0;
     localStorage.removeItem('highScore');
-                                                          }
+        }
+            
