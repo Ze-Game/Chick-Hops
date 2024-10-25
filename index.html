@@ -42,7 +42,9 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             position: absolute; /* Position the screens absolutely */
-            transition: transform 0.3s; /* Smooth appearance */
+            width: 80%; /* Set a width for the screens */
+            max-width: 500px; /* Maximum width for the screens */
+            z-index: 1; /* Ensure it appears above the canvas */
         }
         #startButton, #restartButton {
             display: block;
@@ -241,7 +243,7 @@
             if (score > 100) {
                 // Change height of fence for difficulty
                 fenceHeight = fenceHeight === 30 ? 50 : 30; // toggle between 30 and 50
-                fenceYPosition = canvas.height - fenceHeight; // update fence position
+                fenceYPosition = canvas.height - fenceHeight; // Update fence position
             }
         }
 
