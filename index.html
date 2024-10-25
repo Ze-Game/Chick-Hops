@@ -14,6 +14,7 @@
             background-color: #f0f8ff;
             font-family: Arial, sans-serif;
             margin: 0;
+            overflow: hidden; /* Prevent scrolling */
         }
         #startScreen, #gameOverScreen, #shopScreen {
             text-align: center;
@@ -227,7 +228,7 @@
                             score++;
                             coins++; // Increment coins for hopping over the fence
                             localStorage.setItem('coins', coins); // Save coins to localStorage
-                            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+                            document.getElementById('scoreboard').innerText = `Score: ${score}`;
                             scoredFences.add(fence); // Mark this fence as scored on
                         }
                     }
@@ -244,7 +245,6 @@
                 localStorage.setItem('highScore', highScore); // Save high score to localStorage
             }
             document.getElementById('scoreboard').style.display = 'none'; // Hide scoreboard
-            document.getElementById('shopButton').style.display = 'block'; // Show shop button
         }
 
         // Handle tapping on the screen to jump
