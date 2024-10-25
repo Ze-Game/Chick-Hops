@@ -16,14 +16,26 @@
             padding: 10px 20px;
             font-size: 18px;
         }
+        #gameOverScreen, #startScreen {
+            display: none;
+            text-align: center;
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-    <button id="startButton">Start Game</button>
-    <button id="restartButton" style="display:none;">Restart Game</button>
-    <div id="scoreboard" style="text-align: center; font-size: 24px;"></div>
-    
+    <div id="startScreen">
+        <h1>Chick Hops</h1>
+        <button id="startButton">Start Game</button>
+    </div>
+    <canvas id="gameCanvas" width="800" height="400" style="display:none;"></canvas>
+    <div id="gameOverScreen">
+        <h2>Game Over</h2>
+        <div id="finalScore"></div>
+        <button id="restartButton">Restart Game</button>
+    </div>
+    <div id="scoreboard" style="text-align: center; font-size: 24px; display:none;"></div>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -44,6 +56,11 @@
         let isGameOver = false;
 
         function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            canvas.style.display = 'block';
+            document.getElementById('scoreboard').style.display = 'block';
+
             score = 0;
             isGameOver = false;
             chick.y = canvas.height - 50;
@@ -110,7 +127,7 @@
 
         function updateFences() {
             if (Math.random() < 0.02) {
-                let fenceHeight = Math.random() * 60 + 20;
+                let fenceHeight = 40; // Lowered fence height
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
             }
 
@@ -134,12 +151,9 @@
         }
 
         function showGameOver() {
-            ctx.fillStyle = "red";
-            ctx.font = "40px Arial";
-            ctx.fillText("Game Over", canvas.width / 2 - 100, canvas.height / 2 - 20);
-            ctx.font = "24px Arial";
-            ctx.fillText(`Score: ${score}`, canvas.width / 2 - 40, canvas.height / 2 + 20);
-            document.getElementById('restartButton').style.display = 'block';
+            canvas.style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'block';
+            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
             highScore = Math.max(highScore, score);
             document.getElementById('scoreboard').innerHTML += ` <br> High Score: ${highScore}`;
         }
@@ -157,5 +171,4 @@
         });
     </script>
 </body>
-  </html>
-  
+</html>
