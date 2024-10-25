@@ -19,21 +19,29 @@
             display: none;
             text-align: center;
             width: 400px;
-            height: 600px;
+            height: 300px; /* Reduced height for centered window */
             background-color: #e0ffe0;
             border: 2px solid #000;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            position: absolute; /* Centered positioning */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         #gameWindow {
             display: none;
             position: relative;
-            width: 400px;
-            height: 600px;
+            width: 400px; /* Fixed width for game window */
+            height: 300px; /* Fixed height for game window */
             background-color: #e0ffe0;
             overflow: hidden;
             border: 2px solid #000;
             border-radius: 10px;
+            position: absolute; /* Centered positioning */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         #chick {
             position: absolute;
@@ -227,13 +235,13 @@
 
                 fenceCount++; // Increment fence count
                 if (fenceCount % 10 === 0) {
-                    fenceSpeed += 1; // Increase speed every 10 fences
+                    fenceSpeed += 2; // Increase speed every 10 fences
                 }
-            }, 2000); // Create a new fence every 2 seconds
+            }, 1500); // New fence every 1.5 seconds
         }
 
         function moveFence(fence) {
-            let fencePosition = 400; // Start at the right of the game window
+            let fencePosition = 400; // Start position
             let moveInterval = setInterval(() => {
                 if (isGameOver) {
                     clearInterval(moveInterval);
@@ -242,8 +250,8 @@
                 fencePosition -= fenceSpeed; // Move fence left
                 fence.style.left = `${fencePosition}px`;
 
-                // Check for collision with the chick
-                if (fencePosition < 100 && fencePosition > 50 && parseInt(chick.style.bottom) < 90) {
+                // Check for collision
+                if (fencePosition < 100 && fencePosition > 50 && parseInt(chick.style.bottom) <= 90) {
                     gameOver();
                 }
 
@@ -261,11 +269,11 @@
             isGameOver = true;
             clearInterval(fenceInterval);
             finalScore.innerText = `Final Score: ${score}`;
+            coins = score; // Convert score to coins
+            localStorage.setItem('coins', coins); // Save coins
             highScore = Math.max(score, highScore);
             localStorage.setItem('highScore', highScore); // Save high score
             highScoreDisplay.innerText = `High Score: ${highScore}`;
-            coins = score; // Convert score into coins
-            localStorage.setItem('coins', coins); // Save coins
             gameWindow.style.display = 'none';
             gameOverScreen.style.display = 'block';
         }
