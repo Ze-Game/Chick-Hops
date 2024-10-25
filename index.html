@@ -70,7 +70,7 @@
         let highScore = localStorage.getItem('highScore') || 0; // Get high score from localStorage
         let isGameOver = false;
         let username = localStorage.getItem('username') || '';
-        let fenceSpeed = 3; // Initial speed of fences
+        let fenceHeight = 30; // Initial fence height
 
         function startGame() {
             if (!username) {
@@ -94,7 +94,6 @@
             chick.velocityY = 0;
             chick.isJumping = false;
             fences = [];
-            fenceSpeed = 3; // Reset fence speed
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             gameLoop();
         }
@@ -165,9 +164,8 @@
         }
 
         function updateFences() {
-            // Adjust fence spacing for better hopping experience
+            // Spawn fences at intervals
             if (fences.length === 0 || fences[fences.length - 1].x < canvas.width - 250) { // Adjust this number for more/less distance
-                let fenceHeight = (score >= 100 && Math.random() > 0.5) ? 50 : 30; // Alternate heights for fences above score 100
                 fences.push({ 
                     x: canvas.width, 
                     height: fenceHeight,
@@ -175,9 +173,16 @@
                 });
             }
 
+            // Update fence positions
             for (let i = fences.length - 1; i >= 0; i--) {
                 let fence = fences[i];
-                fence.x -= fenceSpeed; // Speed at which fences move
+
+                // If the score is 100 or above, alternate fence height
+                if (score >= 100) {
+                    fenceHeight = (fenceHeight === 30) ? 50 : 30; // Alternate height
+                } else {
+                    fenceHeight = 30; // Reset height if below 100
+                }
 
                 // Check if the fence is passed and update score
                 if (!fence.passed && fence.x + 20 < chick.x) {
@@ -188,14 +193,13 @@
                 // Remove fences that are off screen
                 if (fence.x + 20 < 0) {
                     fences.splice(i, 1);
+                } else {
+                    fence.x -= 3; // Keep fences stationary
                 }
             }
 
-            // Increase score as fences go off screen
+            // Update scoreboard
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
-            if (score > 50) {
-                fenceSpeed = 5; // Increase speed above score 50
-            }
         }
 
         function checkCollision() {
