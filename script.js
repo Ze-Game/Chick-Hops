@@ -1,143 +1,78 @@
-// Variables
-let username = localStorage.getItem('username');
-let coins = parseInt(localStorage.getItem('coins')) || 0;
-let equippedSkin = localStorage.getItem('equippedSkin') || 'default';
-let highScore = parseInt(localStorage.getItem('highScore')) || 0;
-let currentScore = 0;
-const skinColors = ['blue', 'green', 'orange', 'red', 'violet', 'black', 'pink', 'gray', 'white', 'brown'];
-const skinCost = 100;
+// Global variables
+let username = localStorage.getItem('username') || '';
+let score = 0;
+let coins = 0;
+let highScore = localStorage.getItem('highScore') || 0;
+let fenceSpeed = 2; // Initial speed of fences
+let fenceCount = 0; // Count of fences passed
+let chickColor = 'yellow'; // Default chick color
 
-// DOM Elements
-const usernameInput = document.getElementById('usernameInput');
-const saveUsernameButton = document.getElementById('saveUsernameButton');
-const welcomeMessage = document.getElementById('welcomeMessage');
-const userDisplay = document.getElementById('userDisplay');
-const startButton = document.getElementById('startButton');
-const shopButton = document.getElementById('shopButton');
-const gamePage = document.getElementById('gamePage');
-const startScreen = document.getElementById('startScreen');
-const shopPage = document.getElementById('shopPage');
-const scoreDisplay = document.getElementById('scoreDisplay');
-const gameOverScreen = document.getElementById('gameOverScreen');
-const finalScore = document.getElementById('finalScore');
-const highScoreDisplay = document.getElementById('highScore');
-const skinsContainer = document.getElementById('skins');
-const coinsDisplay = document.getElementById('coinsDisplay');
-const backToStartButton = document.getElementById('backToStartButton');
-const shopButtonGameOver = document.getElementById('shopButtonGameOver');
-const restartButton = document.getElementById('restartButton');
-
-// Load Initial State
-if (username) {
-    userDisplay.textContent = username;
-    welcomeMessage.style.display = 'block';
-    startButton.style.display = 'block';
-} else {
-    document.getElementById('usernameContainer').style.display = 'flex';
-}
-
-coinsDisplay.textContent = `Coins: ${coins}`;
-
-// Save Username
-saveUsernameButton.addEventListener('click', () => {
-    username = usernameInput.value.trim();
+document.addEventListener('DOMContentLoaded', () => {
     if (username) {
-        localStorage.setItem('username', username);
-        userDisplay.textContent = username;
-        document.getElementById('usernameContainer').style.display = 'none';
-        welcomeMessage.style.display = 'block';
-        startButton.style.display = 'block';
+        document.getElementById('welcomeMessage').innerText = `Welcome back, ${username}!`;
+        document.getElementById('usernameInput').style.display = 'none';
+        document.getElementById('startButton').style.display = 'block';
     }
+
+    document.getElementById('saveUsernameButton').addEventListener('click', () => {
+        username = document.getElementById('username').value;
+        if (username) {
+            localStorage.setItem('username', username);
+            document.getElementById('welcomeMessage').innerText = `Welcome back, ${username}!`;
+            document.getElementById('usernameInput').style.display = 'none';
+            document.getElementById('startButton').style.display = 'block';
+        }
+    });
+
+    document.getElementById('startButton').addEventListener('click', () => {
+        window.location.href = 'game.html';
+    });
+
+    document.getElementById('shopButton').addEventListener('click', () => {
+        window.location.href = 'shop.html';
+    });
+
+    document.getElementById('backToMenu').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+
+    loadShop();
 });
 
-// Start Game Button
-startButton.addEventListener('click', () => {
-    startScreen.style.display = 'none';
-    gamePage.style.display = 'block';
-    startGame();
-});
+function loadShop() {
+    const skins = [
+        { color: 'blue', price: 100 },
+        { color: 'green', price: 100 },
+        { color: 'red', price: 100 },
+        { color: 'orange', price: 100 },
+        { color: 'purple', price: 100 },
+        { color: 'gray', price: 100 },
+        { color: 'black', price: 100 },
+        { color: 'brown', price: 100 },
+        { color: 'peach', price: 100 },
+        { color: 'pink', price: 100 },
+    ];
 
-// Shop Button
-shopButton.addEventListener('click', openShop);
-backToStartButton.addEventListener('click', () => {
-    shopPage.style.display = 'none';
-    startScreen.style.display = 'block';
-});
-
-// Generate Skins
-function openShop() {
-    startScreen.style.display = 'none';
-    shopPage.style.display = 'block';
-    skinsContainer.innerHTML = '';
-
-    skinColors.forEach(color => {
+    const skinContainer = document.getElementById('chickSkins');
+    skins.forEach(skin => {
         const skinDiv = document.createElement('div');
-        skinDiv.classList.add('skin');
-        skinDiv.style.backgroundColor = color;
-        skinDiv.addEventListener('click', () => purchaseSkin(color));
-        skinsContainer.appendChild(skinDiv);
+        skinDiv.innerHTML = `
+            <span style="color: ${skin.color}">${skin.color} Chick - ${skin.price} Coins</span>
+            <button onclick="buySkin('${skin.color}', ${skin.price})">Buy</button>
+        `;
+        skinContainer.appendChild(skinDiv);
     });
 }
 
-// Purchase Skins
-function purchaseSkin(color) {
-    if (coins >= skinCost) {
-        coins -= skinCost;
-        localStorage.setItem('coins', coins);
-        equippedSkin = color;
-        localStorage.setItem('equippedSkin', color);
-        alert(`You have equipped the ${color} skin!`);
-        coinsDisplay.textContent = `Coins: ${coins}`;
+function buySkin(color, price) {
+    if (coins >= price) {
+        coins -= price;
+        chickColor = color; // Change the chick color
+        localStorage.setItem('coins', coins); // Update coins in local storage
+        alert(`You bought a ${color} chick!`);
     } else {
         alert('Not enough coins!');
     }
 }
 
-// Game Over
-function gameOver() {
-    gamePage.style.display = 'none';
-    gameOverScreen.style.display = 'block';
-    finalScore.textContent = `Final Score: ${currentScore}`;
-    if (currentScore > highScore) {
-        highScore = currentScore;
-        localStorage.setItem('highScore', highScore);
-    }
-    highScoreDisplay.textContent = `High Score: ${highScore}`;
-}
-
-// Restart Button
-restartButton.addEventListener('click', () => {
-    gameOverScreen.style.display = 'none';
-    gamePage.style.display = 'block';
-    startGame();
-});
-
-shopButtonGameOver.addEventListener('click', openShop);
-
-// Start Game
-function startGame() {
-    currentScore = 0;
-    updateScore();
-    // Game logic goes here
-}
-
-// Update Score
-function updateScore() {
-    scoreDisplay.textContent = `Score: ${currentScore}`;
-    coinsDisplay.textContent = `Coins: ${coins}`;
-}
-
-// Example Function for Adding Points and Converting to Coins
-function addPoints(points) {
-    currentScore += points;
-    coins += points;
-    updateScore();
-    localStorage.setItem('coins', coins);
-}
-
-// Example Fence Speed Increment
-function updateFenceSpeed(fencesPassed) {
-    if (fencesPassed % 20 === 0 && fencesPassed > 0) {
-        // Increment the fence speed here
-    }
-}
+// Game logic functions will go here (game.html related code)
