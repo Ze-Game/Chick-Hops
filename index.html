@@ -169,7 +169,7 @@
         function updateFences() {
             spawnCounter++;
             if (spawnCounter > 80 + Math.random() * 50) {
-                let fenceHeight = 30; // Set fixed height for fences
+                let fenceHeight = Math.random() < 0.5 ? 30 : 40; // Randomize fence height between 30 and 40
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
                 spawnCounter = 0;
             }
@@ -185,7 +185,7 @@
         function checkCollision() {
             for (let fence of fences) {
                 if (chick.x + chick.width > fence.x && chick.x < fence.x + 20) {
-                    if (chick.y + chick.height > fence.y) {
+                    if (chick.y + chick.height >= fence.y) {
                         isGameOver = true; // Collision detected
                     } else if (chick.y < fence.y) {
                         // Increment score only if chick hops over the fence
