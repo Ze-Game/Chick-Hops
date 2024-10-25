@@ -112,13 +112,13 @@
         let score = 0;
         let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
         let coins = localStorage.getItem('coins') ? parseInt(localStorage.getItem('coins')) : 0; // Load coins from localStorage
-        let username = localStorage.getItem('username') || ''; // Load username from localStorage
         let isGameOver = false;
         let spawnCounter = 0;
         let scoredFences = new Set(); // Track fences that have been scored on
 
         // Display welcome message if username exists
         function showWelcomeMessage() {
+            const username = localStorage.getItem('username') || ''; // Load username from localStorage
             if (username) {
                 document.getElementById('welcomeMessage').innerText = `Welcome back, ${username}!`;
                 document.getElementById('welcomeMessage').style.display = 'block';
