@@ -3,21 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chick Hop - Game</title>
     <link rel="stylesheet" href="styles.css">
+    <title>Chick Hop - Game</title>
 </head>
 <body>
     <div class="container">
-        <h1>Chick Hop</h1>
-        <canvas id="gameCanvas" width="600" height="400"></canvas>
-        <div id="scoreboard" class="scoreboard">Score: 0 Coins</div>
-        <div id="gameOverMessage" style="display: none;" class="game-over-message">
-            <h2>Game Over</h2>
-            <p id="finalScore"></p>
-            <button id="restartButton" class="game-button">Restart Game</button>
-            <button id="shopButton" class="game-button">Shop</button>
-        </div>
+        <canvas id="gameCanvas" width="300" height="400"></canvas>
+        <div class="scoreboard" id="scoreboard">Score: 0 Coins: 0</div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
