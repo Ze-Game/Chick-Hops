@@ -66,8 +66,8 @@
     <!-- Game Over Screen -->
     <div id="gameOverScreen" style="display: none;">
         <h2>Game Over</h2>
-        <div id="finalScore"></div>
-        <div id="highScore"></div>
+        <div id="finalScore"></div>  <!-- Display final score -->
+        <div id="highScore"></div>    <!-- Display high score -->
         <button id="restartButton">Restart Game</button>
     </div>
 
@@ -218,7 +218,7 @@
                 highScore = score;
                 localStorage.setItem('highScore', highScore);
             }
-            document.getElementById('highScore').innerHTML = `High Score: ${highScore}`;
+            document.getElementById('highScore').innerHTML = `High Score: ${highScore}`; // Show high score
         }
 
         canvas.addEventListener('click', () => {
