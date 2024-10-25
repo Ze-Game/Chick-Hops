@@ -11,29 +11,34 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
         }
-        #gameWindow {
-            border: 2px solid #000;
+        #gameWindow, #shopScreen, #gameOverScreen, #startScreen {
+            display: none;
+            text-align: center;
             position: relative;
             width: 400px;
             height: 600px;
-            overflow: hidden;
+            border: 2px solid #000;
             background-color: #e0ffe0;
+            overflow: hidden;
         }
         #chick {
             position: absolute;
-            bottom: 50px;
+            bottom: 50px; /* Initial position */
             left: 50px;
             width: 50px;
             height: 50px;
             background-color: yellow; /* Chick appearance */
-            border-radius: 50%;
+            border-radius: 50%; /* Make it round */
         }
         .fence {
             position: absolute;
             bottom: 0;
             width: 50px;
-            height: 80px; /* Initial height of the fence */
+            height: 40px; /* Height of the fence for easier jumping */
             background-color: brown; /* Fence appearance */
         }
         #scoreboard {
@@ -42,14 +47,6 @@
             left: 10px;
             font-size: 20px;
             color: #000;
-        }
-        #gameOverScreen, #shopScreen, #startScreen {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-        #gameOverScreen {
-            display: none;
         }
         button {
             margin-top: 20px;
@@ -109,10 +106,15 @@
         document.getElementById('shopButtonGameOver').addEventListener('click', showShop);
         document.getElementById('backToStart').addEventListener('click', showStartScreen);
 
+        // Show the starting screen on page load
+        showStartScreen();
+
         function showStartScreen() {
+            resetGame();
+            document.getElementById('startScreen').style.display = 'flex';
+            gameWindow.style.display = 'none';
             gameOverScreen.style.display = 'none';
             shopScreen.style.display = 'none';
-            document.getElementById('startScreen').style.display = 'flex';
         }
 
         function showShop() {
@@ -153,10 +155,24 @@
             scoreboard.innerText = `Score: ${score}`;
             fenceSpeed = 5; // Reset fence speed
             createFences();
+
+            // Jump on screen tap
+            gameWindow.addEventListener('click', jump);
         }
 
         function restartGame() {
             startGame();
+        }
+
+        function jump() {
+            if (isGameOver) return;
+            let jumpHeight = 100; // Height of the jump
+            chick.style.transition = 'bottom 0.5s'; // Jump duration
+            chick.style.bottom = `${parseInt(chick.style.bottom) + jumpHeight}px`; // Move up
+
+            setTimeout(() => {
+                chick.style.bottom = '50px'; // Go back down
+            }, 500);
         }
 
         function createFences() {
@@ -165,7 +181,6 @@
                 let fence = document.createElement('div');
                 fence.className = 'fence';
                 fence.style.left = `${400}px`; // Start position off-screen
-                fence.style.height = `${80 + Math.floor(Math.random() * 40)}px`; // Random height
                 gameWindow.appendChild(fence);
 
                 moveFence(fence);
@@ -184,7 +199,7 @@
 
                 // Check for collision
                 if (fencePosition < 50 && fencePosition > 0) {
-                    if (parseInt(chick.style.bottom) < parseInt(fence.style.height)) {
+                    if (parseInt(chick.style.bottom) < 40) { // Adjust for fence height
                         endGame();
                     }
                 }
@@ -220,8 +235,13 @@
             scoreboard.style.display = 'none';
         }
 
-        // Show the starting screen on page load
-        showStartScreen();
+        function resetGame() {
+            score = 0;
+            isGameOver = false;
+            coins = localStorage.getItem('coins') || 0;
+            highScore = localStorage.getItem('highScore') || 0;
+            scoreboard.innerText = `Score: ${score}`;
+        }
     </script>
 </body>
 </html>
