@@ -9,91 +9,47 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #87CEFA; /* Light sky blue background */
-            color: #333; /* Dark text for contrast */
-            height: 100vh; /* Full height for centering */
-            justify-content: center; /* Center content vertically */
-            margin: 0; /* Remove default margin */
-            position: relative; /* Added for absolute positioning */
-        }
-        h1 {
-            font-size: 48px; /* Larger title font */
-            color: #FF4500; /* Bright orange for title */
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow for depth */
         }
         canvas {
-            display: block;
-            margin: 20px auto;
-            background: white;
-            border: 2px solid #333; /* Thicker border for canvas */
-            border-radius: 10px; /* Rounded corners for canvas */
-            z-index: 1; /* Ensure canvas is on top */
+            border: 1px solid black;
+            display: none; /* Hide canvas until game starts */
         }
-        #startScreen, #gameOverScreen, #welcomeBack {
+        #startScreen, #welcomeBack, #gameOverScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #startScreen {
             text-align: center;
-            position: absolute; /* Changed to absolute */
-            top: 50%; /* Centered vertically */
-            left: 50%;
-            transform: translate(-50%, -50%); /* Centered */
-            z-index: 2; /* Ensure it overlays the canvas */
-        }
-        #startButton, #restartButton, #startGameButton {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            font-size: 18px;
-            background-color: #FF6347; /* Tomato color for buttons */
-            color: white; /* White text for buttons */
-            border: none;
-            border-radius: 5px; /* Rounded corners for buttons */
-            cursor: pointer;
-        }
-        #startButton:hover, #restartButton:hover, #startGameButton:hover {
-            background-color: #FF4500; /* Darker shade on hover */
-        }
-        #gameOverScreen, #gameCanvas {
-            display: none;
         }
         #scoreboard {
-            text-align: center; 
-            font-size: 20px; 
-            display: none;
-        }
-        h2 {
-            margin: 0;
+            font-size: 24px;
+            display: none; /* Hide scoreboard until game starts */
         }
     </style>
 </head>
 <body>
-    <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
-        <input id="usernameInput" type="text" placeholder="Enter Username" />
+        <input type="text" id="usernameInput" placeholder="Enter your username" />
         <button id="startButton">Start Game</button>
     </div>
-
-    <!-- Welcome Back Message -->
-    <div id="welcomeBack" style="display: none;">
-        <h1>Chick Hops</h1> <!-- Added title here -->
-        <h2>Welcome Back, <span id="welcomeUsername"></span>!</h2>
+    <div id="welcomeBack" style="display:none;">
+        <h1>Welcome Back, <span id="welcomeUsername"></span>!</h1>
         <button id="startGameButton">Start Game</button>
     </div>
-
-    <!-- Game Canvas -->
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-    
-    <!-- Game Over Screen -->
-    <div id="gameOverScreen" style="display: none;">
-        <h2>Game Over</h2>
-        <div id="finalScore"></div>
-        <div id="highScore"></div>
-        <div id="quote"></div>
-        <button id="restartButton">Restart Game</button>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="scoreboard">Score: 0</div>
+    <div id="gameOverScreen" style="display:none;">
+        <h1>Game Over!</h1>
+        <p id="finalScore"></p>
+        <p id="highScore"></p>
+        <button id="restartButton">Restart</button>
     </div>
-
-    <div id="scoreboard" style="display: none;"></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -204,20 +160,18 @@
         function drawFences() {
             for (let fence of fences) {
                 ctx.fillStyle = "brown";
-                ctx.fillRect(fence.x, fence.y, 20, fence.height);
+                ctx.fillRect(fence.x, canvas.height - fence.height, 20, fence.height);
             }
         }
 
         function updateFences() {
             // Adjust fence spacing for better hopping experience
             if (fences.length === 0 || fences[fences.length - 1].x < canvas.width - 250) { // Adjust this number for more/less distance
-                let fenceHeight = 30; // Height of the fence
+                let fenceHeight = (score >= 100 && Math.random() > 0.5) ? 50 : 30; // Alternate heights for fences above score 100
                 fences.push({ 
                     x: canvas.width, 
-                    y: canvas.height - fenceHeight, 
                     height: fenceHeight,
-                    originalY: canvas.height - fenceHeight, // Save original y position
-                    direction: 1 // 1 for moving down, -1 for moving up
+                    passed: false // Track if the fence has been passed
                 });
             }
 
@@ -225,14 +179,10 @@
                 let fence = fences[i];
                 fence.x -= fenceSpeed; // Speed at which fences move
 
-                // Move the fence up and down if score is 100 or higher
-                if (score >= 100) {
-                    fence.y += fence.direction; // Move the fence
-                    if (fence.y < fence.originalY - 30) {
-                        fence.direction = 1; // Change direction to down
-                    } else if (fence.y > fence.originalY) {
-                        fence.direction = -1; // Change direction to up
-                    }
+                // Check if the fence is passed and update score
+                if (!fence.passed && fence.x + 20 < chick.x) {
+                    score++;
+                    fence.passed = true; // Mark as passed
                 }
 
                 // Remove fences that are off screen
@@ -242,103 +192,42 @@
             }
 
             // Increase score as fences go off screen
-            score++;
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
-
-            // Speed adjustment based on score
-            if (score >= 50) {
-                fenceSpeed = 6; // Speed increase at 50
-            } else if (score >= 100) { // Adjusted speed increase condition
-                fenceSpeed = 7; // Further speed increase at 100
+            if (score > 50) {
+                fenceSpeed = 5; // Increase speed above score 50
             }
         }
 
         function checkCollision() {
             for (let fence of fences) {
-                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && chick.y + chick.height > fence.y) {
-                    isGameOver = true;
+                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20) {
+                    if (chick.y + chick.height > canvas.height - fence.height) {
+                        isGameOver = true; // Collision detected
+                    }
                 }
             }
         }
 
         function showGameOver() {
             document.getElementById('gameOverScreen').style.display = 'block';
-            document.getElementById('finalScore').innerText = `Your Score: ${score}`;
-            document.getElementById('highScore').innerText = `High Score: ${highScore}`;
-
-            // Update high score if current score is higher
+            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
+            document.getElementById('highScore').innerHTML = `High Score: ${highScore}`;
+            // Save high score if needed
             if (score > highScore) {
                 highScore = score;
-                localStorage.setItem('highScore', highScore); // Save new high score
-            }
-
-            // Show a random quote based on score
-            document.getElementById('quote').innerText = getQuote(score);
-        }
-
-        function getQuote(score) {
-            const quotes = {
-                low: [
-                    "Pretty suck!",
-                    "You need to touch some grass!",
-                    "Really, below 10?",
-                    "You need to quit!",
-                    "Get some new glasses.",
-                    "My dog is better than you.",
-                    "It's not even that hard.",
-                    "Skill Issue.",
-                    "You Monster! The chick died!",
-                    "Is that it?"
-                ],
-                medium: [
-                    "You're really working that hard?",
-                    "You can still try... If you can.",
-                    "Well... I can see you're doing great.",
-                    "Is it challenging?",
-                    "Oh! I see."
-                ],
-                high: [
-                    "Amazing!",
-                    "I can't believe you managed to get here?",
-                    "Outstanding!",
-                    "You made the chick so proud.",
-                    "You're Awesome!",
-                    "You crashed this game!",
-                    "That's the skill!!!",
-                    "Well done!",
-                    "Great job!",
-                    "Huge Congrats!!!"
-                ]
-            };
-
-            if (score < 10) {
-                return quotes.low[Math.floor(Math.random() * quotes.low.length)];
-            } else if (score < 30) {
-                return quotes.medium[Math.floor(Math.random() * quotes.medium.length)];
-            } else {
-                return quotes.high[Math.floor(Math.random() * quotes.high.length)];
+                localStorage.setItem('highScore', highScore); // Save to localStorage
             }
         }
 
         document.getElementById('restartButton').addEventListener('click', startGame);
-        document.getElementById('startGameButton').addEventListener('click', startGame);
-
-        // Handle jumping
-        window.addEventListener('keydown', function(event) {
-            if (event.code === 'Space' || event.code === 'Enter') {
-                jump();
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                if (!chick.isJumping) {
+                    chick.velocityY = -10; // Jump height
+                    chick.isJumping = true;
+                }
             }
         });
-
-        // Tap to jump (for mobile devices)
-        canvas.addEventListener('click', jump);
-
-        function jump() {
-            if (!chick.isJumping) {
-                chick.velocityY = -10; // Jump force
-                chick.isJumping = true; // Set jumping status
-            }
-        }
     </script>
 </body>
 </html>
