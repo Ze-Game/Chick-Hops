@@ -222,9 +222,9 @@
         }
 
         canvas.addEventListener('click', () => {
-            if (!chick.isJumping && !isGameOver) {
-                chick.velocityY = chick.jumpStrength; // Adjusted jump on tap
+            if (!isGameOver && chick.y + chick.height >= canvas.height) {
                 chick.isJumping = true;
+                chick.velocityY = chick.jumpStrength; // Set jump velocity
             }
         });
 
