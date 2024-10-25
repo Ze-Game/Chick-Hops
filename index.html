@@ -212,23 +212,44 @@
             // Adjust fence spacing for better hopping experience
             if (fences.length === 0 || fences[fences.length - 1].x < canvas.width - 250) { // Adjust this number for more/less distance
                 let fenceHeight = 30; // Height of the fence
-                fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
+                fences.push({ 
+                    x: canvas.width, 
+                    y: canvas.height - fenceHeight, 
+                    height: fenceHeight,
+                    originalY: canvas.height - fenceHeight, // Save original y position
+                    direction: 1 // 1 for moving down, -1 for moving up
+                });
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= fenceSpeed; // Speed at which fences move
-                if (fences[i].x + 20 < 0) {
+                let fence = fences[i];
+                fence.x -= fenceSpeed; // Speed at which fences move
+
+                // Move the fence up and down if score is 100 or higher
+                if (score >= 100) {
+                    fence.y += fence.direction; // Move the fence
+                    if (fence.y < fence.originalY - 30) {
+                        fence.direction = 1; // Change direction to down
+                    } else if (fence.y > fence.originalY) {
+                        fence.direction = -1; // Change direction to up
+                    }
+                }
+
+                // Remove fences that are off screen
+                if (fence.x + 20 < 0) {
                     fences.splice(i, 1);
-                    score++;
-                    document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
                 }
             }
 
-            // Increase speed when score reaches 30
-            if (score >= 30 && score < 50) { // Speed increase between 30 and 50
-                fenceSpeed = 4; // Moderate speed increase
-            } else if (score >= 50) { // Speed increase at 50 and above
-                fenceSpeed = 6; // Further speed increase
+            // Increase score as fences go off screen
+            score++;
+            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+
+            // Speed adjustment based on score
+            if (score >= 50) {
+                fenceSpeed = 6; // Speed increase at 50
+            } else if (score >= 100) { // Adjusted speed increase condition
+                fenceSpeed = 7; // Further speed increase at 100
             }
         }
 
