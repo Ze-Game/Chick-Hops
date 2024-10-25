@@ -226,7 +226,7 @@
                         // Increment score only if chick hops over the fence and hasn't already scored on it
                         if (!scoredFences.has(fence)) {
                             score++;
-                            coins++; // Increment coins for hopping over the fence
+                            coins++; // Award 1 coin for each point scored
                             localStorage.setItem('coins', coins); // Save coins to localStorage
                             document.getElementById('scoreboard').innerText = `Score: ${score}`;
                             scoredFences.add(fence); // Mark this fence as scored on
@@ -266,9 +266,7 @@
             document.getElementById('gameOverScreen').style.display = 'none'; // Hide game over screen
             document.getElementById('shopScreen').style.display = 'block'; // Show shop screen
             document.getElementById('coinDisplay').innerText = `Coins: ${coins}`; // Show coins
-
-            // Display skin buttons
-            displaySkinButtons();
+            displaySkinButtons(); // Display skin buttons
         });
 
         // Shop button event from game over screen
@@ -276,9 +274,7 @@
             document.getElementById('gameOverScreen').style.display = 'none'; // Hide game over screen
             document.getElementById('shopScreen').style.display = 'block'; // Show shop screen
             document.getElementById('coinDisplay').innerText = `Coins: ${coins}`; // Show coins
-
-            // Display skin buttons
-            displaySkinButtons();
+            displaySkinButtons(); // Display skin buttons
         });
 
         function displaySkinButtons() {
@@ -291,11 +287,13 @@
                 button.innerText = `${color.charAt(0).toUpperCase() + color.slice(1)} Skin - 100 coins`;
                 button.disabled = coins < 100; // Disable button if not enough coins
                 button.addEventListener('click', function() {
-                    coins -= 100; // Deduct coins for purchasing skin
-                    localStorage.setItem('coins', coins); // Save coins to localStorage
-                    document.getElementById('coinDisplay').innerText = `Coins: ${coins}`; // Update coin display
-                    alert(`You purchased the ${color} skin!`);
-                    // Here, you would change the chick's appearance
+                    if (coins >= 100) {
+                        coins -= 100; // Deduct coins for purchasing skin
+                        localStorage.setItem('coins', coins); // Save coins to localStorage
+                        document.getElementById('coinDisplay').innerText = `Coins: ${coins}`; // Update coin display
+                        alert(`You purchased the ${color} skin!`);
+                        // Here, you would change the chick's appearance (not implemented)
+                    }
                 });
                 skinsContainer.appendChild(button);
             });
