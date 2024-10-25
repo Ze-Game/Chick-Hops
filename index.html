@@ -15,15 +15,17 @@
             font-family: Arial, sans-serif;
             margin: 0;
         }
-        #startScreen, #gameOverScreen {
+        #startScreen, #gameOverScreen, #shopScreen {
             text-align: center;
-            display: flex;
+            display: none; /* Hide all screens initially */
+        }
+        #startScreen {
+            display: flex; /* Show start screen by default */
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Ensure it takes full height */
         }
-        #startButton, #restartButton, #shopButton {
+        #startButton, #restartButton, #shopButton, .buyButton {
             display: block;
             margin: 20px auto;
             padding: 10px 20px;
@@ -34,7 +36,7 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        #startButton:hover, #restartButton:hover, #shopButton:hover {
+        #startButton:hover, #restartButton:hover, #shopButton:hover, .buyButton:hover {
             background-color: #45a049;
         }
         h1, h2 {
@@ -60,6 +62,16 @@
             display: block; /* Make the canvas a block element */
             margin: 0 auto;
         }
+        #shopScreen {
+            display: flex; /* Show shop screen */
+            flex-direction: column;
+            align-items: center;
+        }
+        .skin {
+            margin: 10px;
+            display: inline-block;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -77,12 +89,19 @@
     </div>
     
     <!-- Game Over Screen -->
-    <div id="gameOverScreen" style="display: none;">
+    <div id="gameOverScreen">
         <h2>Game Over</h2>
         <div id="finalScore"></div>  <!-- Display final score -->
         <div id="highScore"></div>    <!-- Display high score -->
         <button id="restartButton">Restart Game</button>
         <button id="shopButton">Shop</button>
+    </div>
+
+    <!-- Shop Screen -->
+    <div id="shopScreen">
+        <h2>Shop</h2>
+        <div id="skins"></div>
+        <button id="backToStartButton">Back to Start</button>
     </div>
 
     <script>
@@ -94,6 +113,9 @@
         const restartButton = document.getElementById('restartButton');
         const shopButton = document.getElementById('shopButton');
         const gameOverScreen = document.getElementById('gameOverScreen');
+        const shopScreen = document.getElementById('shopScreen');
+        const backToStartButton = document.getElementById('backToStartButton');
+        const skinsContainer = document.getElementById('skins');
 
         let chick = {
             x: 50,
@@ -103,15 +125,32 @@
             velocityY: 0,
             gravity: 0.5,
             isJumping: false,
-            jumpStrength: -10
+            jumpStrength: -10,
+            skinColor: 'yellow' // Default skin color
         };
 
         let fences = [];
         let score = 0;
         let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
+        let coins = localStorage.getItem('coins') ? parseInt(localStorage.getItem('coins')) : 0;
         let isGameOver = false;
         let spawnCounter = 0;
         let scoredFences = new Set(); 
+
+        // Skins Data
+        const skins = [
+            { color: 'yellow', price: 0 }, // Default skin
+            { color: 'blue', price: 100 },
+            { color: 'green', price: 100 },
+            { color: 'orange', price: 100 },
+            { color: 'red', price: 100 },
+            { color: 'violet', price: 100 },
+            { color: 'black', price: 100 },
+            { color: 'pink', price: 100 },
+            { color: 'gray', price: 100 },
+            { color: 'white', price: 100 },
+            { color: 'brown', price: 100 }
+        ];
 
         function startGame() {
             document.getElementById('startScreen').style.display = 'none'; // Hide the start screen
@@ -145,7 +184,7 @@
         }
 
         function drawChick() {
-            ctx.fillStyle = "yellow"; 
+            ctx.fillStyle = chick.skinColor; 
             ctx.beginPath();
             ctx.ellipse(chick.x + 15, chick.y + 20, 15, 20, 0, 0, Math.PI * 2);
             ctx.fill();
@@ -214,40 +253,83 @@
                     }
                 }
             }
-
-            fences.forEach(fence => {
-                if (fence.x + 20 < 0) {
-                    scoredFences.delete(fence); 
-                }
-            });
         }
 
         function showGameOver() {
-            gameContainer.style.display = 'none'; 
-            gameOverScreen.style.display = 'flex'; 
-            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`; 
+            gameContainer.style.display = 'none';
+            gameOverScreen.style.display = 'block';
+            document.getElementById('finalScore').innerText = `Final Score: ${score}`;
+            document.getElementById('highScore').innerText = `High Score: ${highScore}`;
+
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('highScore', highScore);
             }
-            document.getElementById('highScore').innerHTML = `High Score: ${highScore}`; 
         }
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === " " && !isGameOver) { 
-                if (!chick.isJumping) {
-                    chick.isJumping = true;
-                    chick.velocityY = chick.jumpStrength; 
-                }
+        function restartGame() {
+            gameOverScreen.style.display = 'none'; 
+            startGame();
+        }
+
+        function showShop() {
+            startScreen.style.display = 'none'; 
+            gameOverScreen.style.display = 'none'; 
+            shopScreen.style.display = 'flex'; 
+            skinsContainer.innerHTML = ''; 
+
+            skins.forEach((skin) => {
+                const skinDiv = document.createElement('div');
+                skinDiv.className = 'skin';
+                skinDiv.innerHTML = `
+                    <div style="background-color: ${skin.color}; width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px;"></div>
+                    <div>${skin.color.charAt(0).toUpperCase() + skin.color.slice(1)} Skin</div>
+                    <div>${skin.price} coins</div>
+                    <button class="buyButton" data-color="${skin.color}" data-price="${skin.price}">Buy</button>
+                `;
+                skinsContainer.appendChild(skinDiv);
+            });
+        }
+
+        function buySkin(event) {
+            const button = event.target;
+            const skinColor = button.getAttribute('data-color');
+            const skinPrice = parseInt(button.getAttribute('data-price'));
+
+            if (coins >= skinPrice) {
+                coins -= skinPrice;
+                localStorage.setItem('coins', coins);
+                chick.skinColor = skinColor; 
+                alert(`You bought the ${skinColor.charAt(0).toUpperCase() + skinColor.slice(1)} skin!`);
+            } else {
+                alert('Not enough coins!');
+            }
+            updateCoinsDisplay();
+        }
+
+        function updateCoinsDisplay() {
+            document.getElementById('coinsDisplay').innerText = `Coins: ${coins}`;
+        }
+
+        // Event Listeners
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', restartGame);
+        shopButton.addEventListener('click', showShop);
+        backToStartButton.addEventListener('click', () => {
+            shopScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+        });
+        skinsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('buyButton')) {
+                buySkin(event);
             }
         });
 
-        startButton.addEventListener('click', startGame);
-        restartButton.addEventListener('click', startGame);
-        shopButton.addEventListener('click', () => {
-            // Navigate to shop page (implement your shop logic here)
-            alert('Shop functionality not implemented yet.');
-        });
+        // Initialize
+        updateCoinsDisplay();
+        if (highScore > 0) {
+            document.getElementById('highScore').innerText = `High Score: ${highScore}`;
+        }
     </script>
 </body>
 </html>
