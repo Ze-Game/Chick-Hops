@@ -16,7 +16,7 @@
             background: white;
             border: 1px solid black;
         }
-        #startScreen, #gameOverScreen {
+        #startScreen, #gameOverScreen, #welcomeBack {
             text-align: center;
         }
         #startButton, #restartButton {
@@ -36,19 +36,20 @@
         h1, h2 {
             margin: 0;
         }
-        #leaderboard {
-            margin-top: 20px;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
     <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
-        <div id="welcomeMessage" style="display: none;"></div> <!-- Welcome message -->
         <input id="usernameInput" type="text" placeholder="Enter Username" />
         <button id="startButton">Start Game</button>
+    </div>
+
+    <!-- Welcome Back Message -->
+    <div id="welcomeBack" style="display: none;">
+        <h2>Welcome Back, <span id="welcomeUsername"></span>!</h2>
+        <button id="startGameButton">Start Game</button>
     </div>
 
     <!-- Game Canvas -->
@@ -60,7 +61,6 @@
         <div id="finalScore"></div>
         <div id="quote"></div>
         <button id="restartButton">Restart Game</button>
-        <div id="leaderboard"></div>
     </div>
 
     <div id="scoreboard"></div>
@@ -81,30 +81,21 @@
 
         let fences = [];
         let score = 0;
-        let highScore = 0;
         let isGameOver = false;
-        let spawnCounter = 0;
-        let username = '';
-        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        let username = localStorage.getItem('username') || '';
 
         function startGame() {
-            username = localStorage.getItem('username'); // Get existing username from localStorage
-
             if (!username) {
                 username = document.getElementById('usernameInput').value;
                 if (!username) {
                     alert('Please enter a username');
                     return;
                 }
-                localStorage.setItem('username', username); // Save the new username
-            } else {
-                // Display welcome back message
-                document.getElementById('welcomeMessage').innerHTML = `Welcome back, ${username}!`;
-                document.getElementById('welcomeMessage').style.display = 'block'; // Show the welcome message
-                document.getElementById('usernameInput').style.display = 'none'; // Hide the username input
+                localStorage.setItem('username', username);
             }
 
             document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('welcomeBack').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'none';
             canvas.style.display = 'block';
             document.getElementById('scoreboard').style.display = 'block';
@@ -115,9 +106,17 @@
             chick.velocityY = 0;
             chick.isJumping = false;
             fences = [];
-            spawnCounter = 0;
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             gameLoop();
+        }
+
+        // Display welcome back message if username exists
+        if (username) {
+            document.getElementById('welcomeUsername').innerText = username;
+            document.getElementById('welcomeBack').style.display = 'block';
+            document.getElementById('startGameButton').addEventListener('click', startGame);
+        } else {
+            document.getElementById('startButton').addEventListener('click', startGame);
         }
 
         function gameLoop() {
@@ -176,11 +175,9 @@
         }
 
         function updateFences() {
-            spawnCounter++;
-            if (spawnCounter > 80 + Math.random() * 50) {
+            if (Math.random() < 0.02) { // Adjust spawn rate as necessary
                 let fenceHeight = 30;
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
-                spawnCounter = 0;
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
@@ -206,22 +203,6 @@
             canvas.style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'block';
             document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
-
-            // Save to leaderboard
-            highScore = Math.max(highScore, score);
-            document.getElementById('scoreboard').innerHTML = `High Score: ${highScore}`;
-            leaderboard.push({ username, score });
-            leaderboard.sort((a, b) => b.score - a.score);
-            leaderboard = leaderboard.slice(0, 10); // Keep only top 10
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-
-            // Display leaderboard
-            let leaderboardHTML = '<h3>Leaderboard</h3><ol>';
-            for (let entry of leaderboard) {
-                leaderboardHTML += `<li>${entry.username}: ${entry.score}</li>`;
-            }
-            leaderboardHTML += '</ol>';
-            document.getElementById('leaderboard').innerHTML = leaderboardHTML;
 
             // Display random quote based on score
             let quote;
@@ -251,7 +232,7 @@
             } else {
                 const positiveQuotes = [
                     "Amazing!",
-                    "I can't believe you manage to get here?",
+                    "I can't believe you managed to get here?",
                     "Outstanding!",
                     "You made the chick so proud.",
                     "You're Awesome!",
@@ -266,20 +247,14 @@
             document.getElementById('quote').innerHTML = quote;
         }
 
-        document.getElementById('startButton').addEventListener('click', startGame);
-        document.getElementById('restartButton').addEventListener('click', () => {
-            document.getElementById('gameOverScreen').style.display = 'none';
-            document.getElementById('scoreboard').style.display = 'none';
-            startGame();
-        });
-
-        // Handle space key for jumping
-        document.addEventListener('keydown', function (e) {
-            if (e.code === 'Space' && !chick.isJumping) {
-                chick.velocityY = -10; // Jump height
+        canvas.addEventListener('click', () => {
+            if (!chick.isJumping) {
+                chick.velocityY = -10;
                 chick.isJumping = true;
             }
         });
+
+        document.getElementById('restartButton').addEventListener('click', startGame);
     </script>
 </body>
 </html>
