@@ -20,7 +20,9 @@ body {
     background-color: white;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     width: 90%;
-    max-width: 350px;
+    max-width: 350px; /* Set a maximum width for mobile view */
+    height: 80%; /* Set a height for container */
+    overflow: hidden; /* Prevent overflow */
 }
 
 h1 {
