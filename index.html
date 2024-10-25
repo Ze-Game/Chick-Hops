@@ -15,36 +15,35 @@
             height: 100vh;
             margin: 0;
         }
-        #startScreen {
+        #startScreen, #shopScreen, #gameOverScreen {
+            display: none;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            width: 400px;
+            height: 600px;
             background-color: #e0ffe0;
             border: 2px solid #000;
             border-radius: 10px;
-            padding: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
-        #gameWindow, #shopScreen, #gameOverScreen {
+        #gameWindow {
             display: none;
-            text-align: center;
             position: relative;
             width: 400px;
             height: 600px;
-            border: 2px solid #000;
             background-color: #e0ffe0;
             overflow: hidden;
+            border: 2px solid #000;
+            border-radius: 10px;
         }
         #chick {
             position: absolute;
-            bottom: 50px; /* Initial position */
+            bottom: 50px; /* Position the chick on the ground */
             left: 50px;
             width: 50px;
             height: 50px;
-            background-color: yellow; /* Chick appearance */
-            border-radius: 50%; /* Make it round */
+            background-image: url('https://example.com/chick.png'); /* Placeholder for chick image */
+            background-size: cover;
+            border-radius: 50%; /* To make it round for visual effect */
         }
         .fence {
             position: absolute;
@@ -210,71 +209,72 @@
 
             setTimeout(() => {
                 chick.style.bottom = '50px'; // Go back down
+                checkCollision(); // Check for collision after jumping
             }, 500);
         }
 
         function createFences() {
+            let fenceCount = 0; // Initialize fence count
             fenceInterval = setInterval(() => {
                 if (isGameOver) return;
+
                 let fence = document.createElement('div');
                 fence.className = 'fence';
                 fence.style.left = `${400}px`; // Start position off-screen
                 gameWindow.appendChild(fence);
 
                 moveFence(fence);
+
+                fenceCount++; // Increment fence count
+                if (fenceCount % 10 === 0) {
+                    fenceSpeed += 1; // Increase speed every 10 fences
+                }
             }, 2000); // Create a new fence every 2 seconds
         }
 
         function moveFence(fence) {
-            let fencePosition = 400; // Starting position
-            const moveInterval = setInterval(() => {
+            let fencePosition = 400; // Start at the right of the game window
+            let moveInterval = setInterval(() => {
                 if (isGameOver) {
                     clearInterval(moveInterval);
                     return;
                 }
-                fencePosition -= fenceSpeed; // Move fence to the left
+                fencePosition -= fenceSpeed; // Move fence left
                 fence.style.left = `${fencePosition}px`;
 
-                // Check for collision
-                if (fencePosition < 50 && fencePosition > 0) {
-                    if (parseInt(chick.style.bottom) < 40) { // Collision detection
-                        endGame();
-                    }
+                // Check for collision with the chick
+                if (fencePosition < 100 && fencePosition > 50 && parseInt(chick.style.bottom) < 90) {
+                    gameOver();
                 }
 
-                // Remove fence if it goes off screen
+                // Remove fence if it goes off-screen
                 if (fencePosition < -50) {
                     clearInterval(moveInterval);
                     gameWindow.removeChild(fence);
                     score++;
-                    coins++; // Convert score to coins
-                    localStorage.setItem('coins', coins); // Save coins to localStorage
                     scoreboard.innerText = `Score: ${score}`;
                 }
-            }, 100); // Update fence position every 100 ms
+            }, 20);
         }
 
-        function endGame() {
+        function gameOver() {
             isGameOver = true;
             clearInterval(fenceInterval);
             finalScore.innerText = `Final Score: ${score}`;
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('highScore', highScore); // Save high score
-            }
+            highScore = Math.max(score, highScore);
+            localStorage.setItem('highScore', highScore); // Save high score
             highScoreDisplay.innerText = `High Score: ${highScore}`;
-            gameOverScreen.style.display = 'block';
+            coins = score; // Convert score into coins
+            localStorage.setItem('coins', coins); // Save coins
             gameWindow.style.display = 'none';
+            gameOverScreen.style.display = 'block';
         }
 
         function resetGame() {
             score = 0;
             isGameOver = false;
-            coins = localStorage.getItem('coins') || 0; // Load coins from localStorage
-            document.getElementById('startScreen').style.display = 'flex';
-            gameWindow.style.display = 'none';
-            gameOverScreen.style.display = 'none';
-            shopScreen.style.display = 'none';
+            chick.style.bottom = '50px'; // Reset position
+            scoreboard.innerText = `Score: ${score}`;
         }
     </script>
 </body>
