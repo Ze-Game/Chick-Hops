@@ -1,20 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Chick Hops</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chick Hops</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="game-container">
-        <canvas id="gameCanvas"></canvas>
-        <div id="gameOverScreen" class="hidden">
-            <h1>Game Over</h1>
-            <p id="scoreText">Score: 0</p>
-            <p id="quoteText">Keep practicing!</p>
-            <button id="restartButton">Restart</button>
-        </div>
-    </div>
-    <script src="script.js"></script>
+  <!-- Start Page -->
+  <div id="startPage" class="page">
+    <h1>Chick Hops</h1>
+    <button id="startButton">Start Game</button>
+  </div>
+
+  <!-- Game Page -->
+  <canvas id="gameCanvas" class="page"></canvas>
+
+  <!-- Game Over Page -->
+  <div id="gameOverPage" class="page">
+    <h1>Game Over!</h1>
+    <p id="finalScore"></p>
+    <button id="restartButton">Restart</button>
+    <p id="quote"></p>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
