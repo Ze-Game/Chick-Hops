@@ -71,6 +71,7 @@
         let isGameOver = false;
         let username = localStorage.getItem('username') || '';
         let fenceHeight = 30; // Initial fence height
+        let moveFences = false; // Flag to determine if fences should move
 
         function startGame() {
             if (!username) {
@@ -173,28 +174,31 @@
                 });
             }
 
-            // Update fence positions
-            for (let i = fences.length - 1; i >= 0; i--) {
-                let fence = fences[i];
-
-                // If the score is 100 or above, alternate fence height
-                if (score >= 100) {
-                    fenceHeight = (fenceHeight === 30) ? 50 : 30; // Alternate height
-                } else {
-                    fenceHeight = 30; // Reset height if below 100
-                }
-
-                // Check if the fence is passed and update score
+            // Check if the fence is passed and update score
+            for (let fence of fences) {
                 if (!fence.passed && fence.x + 20 < chick.x) {
                     score++;
                     fence.passed = true; // Mark as passed
                 }
+            }
+
+            // Update fence positions
+            for (let i = fences.length - 1; i >= 0; i--) {
+                let fence = fences[i];
 
                 // Remove fences that are off screen
                 if (fence.x + 20 < 0) {
                     fences.splice(i, 1);
                 } else {
-                    fence.x -= 3; // Keep fences stationary
+                    if (score >= 100) {
+                        fence.x -= 3; // Move fences if score is 100 or more
+                        // Alternate fence height every 60 frames
+                        if (frameCount % 60 === 0) {
+                            fenceHeight = fenceHeight === 30 ? 50 : 30; // Alternate height
+                        }
+                    } else {
+                        fence.x -= 0; // Fences stay stationary if score is less than 100
+                    }
                 }
             }
 
@@ -226,9 +230,9 @@
         document.getElementById('restartButton').addEventListener('click', startGame);
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.code === 'ArrowUp') {
-                if (!chick.isJumping) {
-                    chick.velocityY = -10; // Jump height
+                if (!chick.isJumping && !isGameOver) {
                     chick.isJumping = true;
+                    chick.velocityY = -10; // Jump velocity
                 }
             }
         });
