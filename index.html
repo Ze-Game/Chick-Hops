@@ -88,7 +88,7 @@
     <div id="startScreen">
         <h1>Chick Hops</h1>
         <div id="welcomeBack" class="hidden"></div>
-        <input id="usernameInput" type="text" placeholder="Enter Username" class="hidden" />
+        <input id="usernameInput" type="text" placeholder="Enter Username" />
         <button id="startButton">Start Game</button>
     </div>
 
@@ -242,7 +242,7 @@
             }
             if (score > 100) {
                 // Change height of fence for difficulty
-                fenceHeight = fenceHeight === 30 ? 50 : 30; // toggle between 30 and 50
+                fenceHeight = fenceHeight === 30 ? 50 : 30; // alternate heights
                 for (let fence of fences) {
                     fence.height = fenceHeight;
                 }
@@ -265,6 +265,7 @@
                 localStorage.setItem('highScore', highScore); // Save new high score
             }
             document.getElementById('quote').innerHTML = getQuote(score);
+            document.getElementById('scoreboard').style.display = 'none'; // Hide scoreboard
         }
 
         function getQuote(score) {
