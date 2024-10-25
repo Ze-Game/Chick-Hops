@@ -141,14 +141,14 @@
 
         function updateFences() {
             spawnCounter++;
-            if (spawnCounter > 100 + Math.random() * 100) {
-                let fenceHeight = 30; // Lowered fence height for chick to jump over
+            if (spawnCounter > 150 + Math.random() * 100) {  // Adjusted spawn rate
+                let fenceHeight = 30; // Fence height for chick to jump over
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
                 spawnCounter = 0;
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= 2; // Move fence to the left
+                fences[i].x -= 3; // Move fence to the left
                 if (fences[i].x + 20 < 0) {
                     fences.splice(i, 1);
                     score++; // Increment score when fence passes
