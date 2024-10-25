@@ -12,44 +12,69 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            background-color: #f0f8ff;
             font-family: Arial, sans-serif;
         }
         canvas {
+            display: block;
+            margin: 20px auto;
+            background: white;
             border: 1px solid black;
-            display: none; /* Hide canvas until game starts */
         }
-        #startScreen, #welcomeBack, #gameOverScreen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #startScreen {
+        #startScreen, #gameOverScreen {
             text-align: center;
         }
+        #startButton, #restartButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        #gameOverScreen, #gameCanvas {
+            display: none;
+        }
         #scoreboard {
-            font-size: 24px;
-            display: none; /* Hide scoreboard until game starts */
+            text-align: center; 
+            font-size: 20px; 
+            display: none;
+        }
+        h1, h2 {
+            margin: 0;
+        }
+        #fence {
+            position: absolute;
+            bottom: 0;
+            width: 20px;
+            background: brown;
+            transition: height 0.2s;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
+    <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
-        <input type="text" id="usernameInput" placeholder="Enter your username" />
+        <div id="welcomeBack" class="hidden">Welcome back!</div>
+        <input id="usernameInput" type="text" placeholder="Enter Username" class="hidden" />
         <button id="startButton">Start Game</button>
     </div>
-    <div id="welcomeBack" style="display:none;">
-        <h1>Welcome Back, <span id="welcomeUsername"></span>!</h1>
-        <button id="startGameButton">Start Game</button>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen">
+        <h2>Game Over</h2>
+        <div id="finalScore"></div>
+        <div id="quote"></div>
+        <button id="restartButton">Restart Game</button>
     </div>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <div id="scoreboard">Score: 0</div>
-    <div id="gameOverScreen" style="display:none;">
-        <h1>Game Over!</h1>
-        <p id="finalScore"></p>
-        <p id="highScore"></p>
-        <button id="restartButton">Restart</button>
-    </div>
+
+    <div id="scoreboard"></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -67,24 +92,22 @@
 
         let fences = [];
         let score = 0;
-        let highScore = localStorage.getItem('highScore') || 0; // Get high score from localStorage
+        let highScore = 0;
         let isGameOver = false;
-        let username = localStorage.getItem('username') || '';
-        let fenceHeight = 30; // Initial fence height
-        let moveFences = false; // Flag to determine if fences should move
+        let spawnCounter = 0;
+        let username = '';
+        let fenceHeight = 30;
+        let speed = 3; // initial speed
+        let fenceYPosition = canvas.height - fenceHeight;
 
         function startGame() {
+            username = document.getElementById('usernameInput').value;
             if (!username) {
-                username = document.getElementById('usernameInput').value;
-                if (!username) {
-                    alert('Please enter a username');
-                    return;
-                }
-                localStorage.setItem('username', username);
+                alert('Please enter a username');
+                return;
             }
 
             document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('welcomeBack').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'none';
             canvas.style.display = 'block';
             document.getElementById('scoreboard').style.display = 'block';
@@ -95,18 +118,10 @@
             chick.velocityY = 0;
             chick.isJumping = false;
             fences = [];
+            spawnCounter = 0;
+            speed = 3; // reset speed
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             gameLoop();
-        }
-
-        // Display welcome back message if username exists
-        if (username) {
-            document.getElementById('welcomeUsername').innerText = username;
-            document.getElementById('welcomeBack').style.display = 'block';
-            document.getElementById('startGameButton').addEventListener('click', startGame);
-            document.getElementById('startScreen').style.display = 'none'; // Hide the start screen
-        } else {
-            document.getElementById('startButton').addEventListener('click', startGame);
         }
 
         function gameLoop() {
@@ -160,82 +175,88 @@
         function drawFences() {
             for (let fence of fences) {
                 ctx.fillStyle = "brown";
-                ctx.fillRect(fence.x, canvas.height - fence.height, 20, fence.height);
+                ctx.fillRect(fence.x, fence.y, 20, fence.height);
             }
         }
 
         function updateFences() {
-            // Spawn fences at intervals
-            if (fences.length === 0 || fences[fences.length - 1].x < canvas.width - 250) { // Adjust this number for more/less distance
-                fences.push({ 
-                    x: canvas.width, 
-                    height: fenceHeight,
-                    passed: false // Track if the fence has been passed
-                });
+            spawnCounter++;
+            if (spawnCounter > 80 + Math.random() * 50) {
+                fenceHeight = 30; // reset height
+                fences.push({ x: canvas.width, y: fenceYPosition, height: fenceHeight });
+                spawnCounter = 0;
             }
 
-            // Check if the fence is passed and update score
-            for (let fence of fences) {
-                if (!fence.passed && fence.x + 20 < chick.x) {
-                    score++;
-                    fence.passed = true; // Mark as passed
-                }
-            }
-
-            // Update fence positions
             for (let i = fences.length - 1; i >= 0; i--) {
-                let fence = fences[i];
+                fences[i].x -= speed;
 
-                // Remove fences that are off screen
-                if (fence.x + 20 < 0) {
+                // Count score only if the chick hops over the fence
+                if (fences[i].x + 20 < chick.x && !fences[i].scored) {
+                    score++;
+                    fences[i].scored = true; // mark as scored
+                    document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+                }
+
+                if (fences[i].x + 20 < 0) {
                     fences.splice(i, 1);
-                } else {
-                    if (score >= 100) {
-                        fence.x -= 3; // Move fences if score is 100 or more
-                        // Alternate fence height every 60 frames
-                        if (frameCount % 60 === 0) {
-                            fenceHeight = fenceHeight === 30 ? 50 : 30; // Alternate height
-                        }
-                    } else {
-                        fence.x -= 0; // Fences stay stationary if score is less than 100
-                    }
                 }
             }
 
-            // Update scoreboard
-            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+            // Adjust speed based on score
+            if (score > 30) {
+                speed = 4; // increase speed after 30
+            }
+            if (score > 60) {
+                speed = 5; // increase speed after 60
+            }
+            if (score > 100) {
+                // Change height of fence for difficulty
+                fenceHeight = fenceHeight === 30 ? 50 : 30; // toggle between 30 and 50
+                fenceYPosition = canvas.height - fenceHeight;
+            }
         }
 
         function checkCollision() {
             for (let fence of fences) {
-                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20) {
-                    if (chick.y + chick.height > canvas.height - fence.height) {
-                        isGameOver = true; // Collision detected
-                    }
+                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && 
+                    chick.y + chick.height >= fence.y) {
+                    isGameOver = true;
                 }
             }
         }
 
         function showGameOver() {
+            canvas.style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'block';
             document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
-            document.getElementById('highScore').innerHTML = `High Score: ${highScore}`;
-            // Save high score if needed
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('highScore', highScore); // Save to localStorage
-            }
+
+            // Save high score
+            highScore = Math.max(highScore, score);
+            localStorage.setItem('highScore', highScore);
         }
 
-        document.getElementById('restartButton').addEventListener('click', startGame);
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'ArrowUp') {
-                if (!chick.isJumping && !isGameOver) {
-                    chick.isJumping = true;
-                    chick.velocityY = -10; // Jump velocity
-                }
+        canvas.addEventListener('click', () => {
+            if (!chick.isJumping) {
+                chick.velocityY = -10;
+                chick.isJumping = true;
             }
         });
+
+        document.getElementById('startButton').addEventListener('click', startGame);
+
+        // Check for existing username and display welcome message
+        if (localStorage.getItem('username')) {
+            username = localStorage.getItem('username');
+            document.getElementById('welcomeBack').innerText = `Welcome back, ${username}!`;
+            document.getElementById('welcomeBack').classList.remove('hidden');
+            document.getElementById('usernameInput').classList.add('hidden');
+        } else {
+            document.getElementById('usernameInput').classList.remove('hidden');
+            document.getElementById('usernameInput').addEventListener('input', (event) => {
+                username = event.target.value;
+                localStorage.setItem('username', username);
+            });
+        }
     </script>
 </body>
 </html>
