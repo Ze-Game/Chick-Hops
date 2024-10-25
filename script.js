@@ -1,3 +1,4 @@
+// Get username and high score from local storage
 let username = localStorage.getItem('username');
 let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
@@ -25,21 +26,20 @@ function showGameOver() {
         localStorage.setItem('highScore', highScore);
     }
 
-    // Update leaderboard
-    let existingEntry = leaderboard.find(entry => entry.username === username);
-    if (existingEntry) {
+    // Update leaderboard for the current player
+    let playerEntryIndex = leaderboard.findIndex(entry => entry.username === username);
+    if (playerEntryIndex !== -1) {
         // Update the score only if the new score is higher
-        if (score > existingEntry.score) {
-            existingEntry.score = score;
+        if (score > leaderboard[playerEntryIndex].score) {
+            leaderboard[playerEntryIndex].score = score;
         }
     } else {
-        // Add new entry
+        // Add a new entry for the player
         leaderboard.push({ username, score });
     }
 
-    // Sort the leaderboard by score in descending order
+    // Sort the leaderboard by score in descending order and update localStorage
     leaderboard.sort((a, b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 10); // Keep only top 10
     localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
 
     // Display leaderboard
@@ -93,6 +93,7 @@ function showGameOver() {
     document.getElementById('quote').innerHTML = quote;
 }
 
+// Event listeners
 canvas.addEventListener('click', () => {
     if (!chick.isJumping) {
         chick.velocityY = -10;
@@ -102,4 +103,3 @@ canvas.addEventListener('click', () => {
 
 document.getElementById('startButton').addEventListener('click', startGame);
 document.getElementById('restartButton').addEventListener('click', startGame);
-                        
