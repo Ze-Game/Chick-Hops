@@ -51,13 +51,21 @@
             font-size: 20px;
             display: none; /* Initially hide the scoreboard */
         }
+        #usernameInput {
+            display: none; /* Hide username input initially */
+        }
     </style>
 </head>
 <body>
     <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
-        <button id="startButton">Start Game</button>
+        <div id="usernameInput">
+            <input type="text" id="username" placeholder="Enter your username">
+            <button id="saveUsernameButton">Save Username</button>
+        </div>
+        <div id="welcomeMessage" style="display: none;"></div>
+        <button id="startButton" style="display: none;">Start Game</button>
     </div>
 
     <!-- Game Canvas -->
@@ -91,6 +99,7 @@
         let fences = [];
         let score = 0;
         let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
+        let username = localStorage.getItem('username') || ''; // Load username from localStorage
         let isGameOver = false;
         let spawnCounter = 0;
         let scoredFences = new Set(); // Track fences that have been scored on
@@ -221,15 +230,42 @@
             document.getElementById('highScore').innerHTML = `High Score: ${highScore}`; // Show high score
         }
 
-        canvas.addEventListener('click', () => {
-            if (!isGameOver && chick.y + chick.height >= canvas.height) {
-                chick.isJumping = true;
-                chick.velocityY = chick.jumpStrength; // Set jump velocity
+        document.addEventListener('keydown', (event) => {
+            if (event.key === " " && !isGameOver) { // Jump on spacebar press
+                if (!chick.isJumping) {
+                    chick.isJumping = true;
+                    chick.velocityY = chick.jumpStrength; // Set jump velocity
+                }
             }
         });
 
         document.getElementById('startButton').addEventListener('click', startGame);
         document.getElementById('restartButton').addEventListener('click', startGame);
+        
+        // Username handling
+        const saveUsernameButton = document.getElementById('saveUsernameButton');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const usernameInput = document.getElementById('usernameInput');
+        const startButton = document.getElementById('startButton');
+
+        if (username) {
+            welcomeMessage.innerHTML = `Welcome back, ${username}!`;
+            welcomeMessage.style.display = 'block';
+            startButton.style.display = 'block'; // Show start button if username exists
+        } else {
+            usernameInput.style.display = 'flex'; // Show username input
+            saveUsernameButton.addEventListener('click', () => {
+                const enteredUsername = document.getElementById('username').value;
+                if (enteredUsername) {
+                    username = enteredUsername;
+                    localStorage.setItem('username', username);
+                    welcomeMessage.innerHTML = `Welcome back, ${username}!`;
+                    welcomeMessage.style.display = 'block';
+                    usernameInput.style.display = 'none'; // Hide username input
+                    startButton.style.display = 'block'; // Show start button
+                }
+            });
+        }
     </script>
 </body>
 </html>
