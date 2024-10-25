@@ -1,7 +1,6 @@
-// Initialize username, high score, and leaderboard
+// Initialize username and high score
 let username = localStorage.getItem('username');
 let highScore = parseInt(localStorage.getItem('highScore')) || 0;
-let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
 // Prompt the user for a username if not already set
 if (!username) {
@@ -15,7 +14,7 @@ if (!username) {
     }
 }
 
-// Function to show the Game Over screen and update the leaderboard
+// Function to show the Game Over screen
 function showGameOver() {
     canvas.style.display = 'none';
     document.getElementById('gameOverScreen').style.display = 'block';
@@ -26,33 +25,6 @@ function showGameOver() {
         highScore = score;
         localStorage.setItem('highScore', highScore);
     }
-
-    // Update or add the player's entry in the leaderboard
-    let playerEntry = leaderboard.find(entry => entry.username === username);
-    if (playerEntry) {
-        // Update the score only if the new score is higher
-        if (score > playerEntry.score) {
-            playerEntry.score = score;
-        }
-    } else {
-        // Add a new entry for the player
-        leaderboard.push({ username, score });
-    }
-
-    // Sort the leaderboard by score in descending order and keep only the top 10
-    leaderboard.sort((a, b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 10);
-
-    // Update localStorage with the new leaderboard
-    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-
-    // Display leaderboard on the Game Over screen
-    let leaderboardHTML = '<h3>Leaderboard - Top 10</h3><ol>';
-    for (let entry of leaderboard) {
-        leaderboardHTML += `<li>${entry.username}: ${entry.score}</li>`;
-    }
-    leaderboardHTML += '</ol>';
-    document.getElementById('leaderboard').innerHTML = leaderboardHTML;
 
     // Display a random quote based on the score
     let quote;
@@ -90,8 +62,8 @@ canvas.addEventListener('click', () => {
 document.getElementById('startButton').addEventListener('click', startGame);
 document.getElementById('restartButton').addEventListener('click', startGame);
 
-// Function to manually reset the leaderboard (optional, for development purposes)
-function resetLeaderboard() {
-    leaderboard = [];
-    localStorage.removeItem('leaderboard');
-}
+// Function to manually reset high score (optional, for development purposes)
+function resetHighScore() {
+    highScore = 0;
+    localStorage.removeItem('highScore');
+                                                          }
