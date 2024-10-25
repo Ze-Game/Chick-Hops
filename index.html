@@ -216,29 +216,30 @@
             }
 
             // Increase speed when score reaches 30
-            if (score >= 30) {
-                fenceSpeed = 5; // Increase fence speed
+            if (score >= 30 && fenceSpeed < 4) { // Adjusted maximum speed to 4
+                fenceSpeed = 4; // Increase fence speed moderately
             }
         }
 
         function checkCollision() {
             for (let fence of fences) {
-                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && 
-                    chick.y + chick.height > fence.y) {
+                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && chick.y + chick.height > fence.y) {
                     isGameOver = true;
                 }
             }
         }
 
         function showGameOver() {
-            canvas.style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'none';
+            document.getElementById('scoreboard').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'block';
-            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
+            document.getElementById('finalScore').innerText = `Your score: ${score}`;
+            document.getElementById('quote').innerText = getRandomQuote(score);
+        }
 
-            // Display random quote based on score
-            let quote;
-            if (score < 10) {
-                const negativeQuotes = [
+        function getRandomQuote(score) {
+            const quotes = {
+                low: [
                     "Pretty suck!",
                     "You need to touch some grass!",
                     "Really, below 10?",
@@ -249,19 +250,15 @@
                     "Skill Issue.",
                     "You Monster! The chick died!",
                     "Is that it?"
-                ];
-                quote = negativeQuotes[Math.floor(Math.random() * negativeQuotes.length)];
-            } else if (score < 30) {
-                const averageQuotes = [
+                ],
+                medium: [
                     "You're really working that hard?",
                     "You can still try... If you can.",
                     "Well... I can see you're doing great.",
                     "Is it challenging?",
                     "Oh! I see."
-                ];
-                quote = averageQuotes[Math.floor(Math.random() * averageQuotes.length)];
-            } else {
-                const positiveQuotes = [
+                ],
+                high: [
                     "Amazing!",
                     "I can't believe you managed to get here?",
                     "Outstanding!",
@@ -272,26 +269,38 @@
                     "Well done!",
                     "Great job!",
                     "Huge Congrats!!!"
-                ];
-                quote = positiveQuotes[Math.floor(Math.random() * positiveQuotes.length)];
-            }
-            document.getElementById('quote').innerHTML = quote;
-        }
+                ]
+            };
 
-        function jump() {
-            if (!chick.isJumping) {
-                chick.velocityY = -10; // Jump height
-                chick.isJumping = true;
+            if (score < 10) {
+                return quotes.low[Math.floor(Math.random() * quotes.low.length)];
+            } else if (score < 30) {
+                return quotes.medium[Math.floor(Math.random() * quotes.medium.length)];
+            } else {
+                return quotes.high[Math.floor(Math.random() * quotes.high.length)];
             }
         }
-
-        canvas.addEventListener('mousedown', jump);
-        canvas.addEventListener('touchstart', (event) => {
-            event.preventDefault(); // Prevent scrolling on touch
-            jump();
-        });
 
         document.getElementById('restartButton').addEventListener('click', startGame);
+        document.getElementById('startGameButton').addEventListener('click', startGame);
+
+        // Handle jumping
+        window.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' || event.code === 'Enter') {
+                if (!chick.isJumping) {
+                    chick.velocityY = -10; // Jump force
+                    chick.isJumping = true; // Set jumping status
+                }
+            }
+        });
+
+        // Tap to jump (for mobile devices)
+        canvas.addEventListener('click', function() {
+            if (!chick.isJumping) {
+                chick.velocityY = -10; // Jump force
+                chick.isJumping = true; // Set jumping status
+            }
+        });
     </script>
 </body>
 </html>
