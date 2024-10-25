@@ -224,10 +224,10 @@
                     if (chick.y + chick.height >= fence.y) {
                         isGameOver = true; // Collision detected
                     } else if (chick.y < fence.y) {
-                        // Increment score only if chick hops over the fence and hasn't already scored on it
+                        // Increment score only if chick hops over the fence and hasn't already scored on this fence
                         if (!scoredFences.has(fence)) {
                             score++;
-                            coins++; // Award 1 coin for each point scored
+                            coins++; // Increment coins for scoring
                             localStorage.setItem('coins', coins); // Save coins to localStorage
                             document.getElementById('scoreboard').innerText = `Score: ${score}`;
                             scoredFences.add(fence); // Mark this fence as scored on
@@ -246,6 +246,7 @@
                 localStorage.setItem('highScore', highScore); // Save high score to localStorage
             }
             document.getElementById('scoreboard').style.display = 'none'; // Hide scoreboard
+            canvas.style.display = 'none'; // Hide canvas
         }
 
         // Handle tapping on the canvas to jump
