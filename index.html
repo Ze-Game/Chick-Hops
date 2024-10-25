@@ -81,6 +81,7 @@
     <div id="gameOverScreen">
         <h2>Game Over</h2>
         <div id="finalScore"></div>
+        <div id="highScore"></div>
         <div id="quote"></div>
         <button id="restartButton">Restart Game</button>
     </div>
@@ -103,6 +104,7 @@
 
         let fences = [];
         let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0; // Get high score from localStorage
         let isGameOver = false;
         let username = localStorage.getItem('username') || '';
         let fenceSpeed = 3; // Initial speed of fences
@@ -233,11 +235,20 @@
             document.getElementById('gameCanvas').style.display = 'none';
             document.getElementById('scoreboard').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'block';
-            document.getElementById('finalScore').innerText = `Your score: ${score}`;
-            document.getElementById('quote').innerText = getRandomQuote(score);
+            document.getElementById('finalScore').innerText = `Your Score: ${score}`;
+            document.getElementById('highScore').innerText = `High Score: ${highScore}`;
+
+            // Update high score if current score is higher
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore', highScore); // Save new high score
+            }
+
+            // Show a random quote based on score
+            document.getElementById('quote').innerText = getQuote(score);
         }
 
-        function getRandomQuote(score) {
+        function getQuote(score) {
             const quotes = {
                 low: [
                     "Pretty suck!",
