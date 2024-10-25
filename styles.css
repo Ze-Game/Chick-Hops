@@ -10,28 +10,25 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    overflow: hidden; /* Prevent scrolling */
 }
 
 .container {
     text-align: center;
     border: 3px solid #4CAF50;
     border-radius: 15px;
-    padding: 20px; /* Reduced padding */
+    padding: 20px;
     background-color: white;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    width: 90%; /* Make it responsive */
-    max-width: 350px; /* Smaller max-width for mobile */
-    margin: 10px; /* Add some margin */
+    width: 90%;
+    max-width: 350px;
 }
 
 h1 {
     color: #4CAF50;
-    font-size: 24px; /* Adjust font size */
 }
 
 h2 {
-    font-size: 18px; /* Adjust font size for the welcome message */
+    font-size: 18px;
 }
 
 input {
@@ -39,11 +36,11 @@ input {
     margin-top: 10px;
     border: 2px solid #4CAF50;
     border-radius: 5px;
-    width: 100%; /* Full width for mobile input */
+    width: 100%;
 }
 
 button {
-    padding: 12px 20px; /* Adjusted padding */
+    padding: 12px 20px;
     margin: 10px;
     background-color: #4CAF50;
     color: white;
@@ -51,7 +48,7 @@ button {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
-    width: 100%; /* Full width for buttons */
+    width: 100%;
 }
 
 button:hover {
@@ -64,6 +61,6 @@ button:hover {
     font-weight: bold;
 }
 
-.fence {
-    background-color: brown; /* Set fence color */
+canvas {
+    border: 2px solid #4CAF50;
 }
