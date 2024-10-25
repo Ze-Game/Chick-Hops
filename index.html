@@ -15,9 +15,10 @@
             background-color: #f0f8ff;
             font-family: Arial, sans-serif;
             color: #333;
+            position: relative;
         }
         canvas {
-            display: block;
+            display: none; /* Hide canvas initially */
             margin: 20px auto;
             background: white;
             border: 2px solid #333;
@@ -29,6 +30,7 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            position: absolute; /* Position the screens absolutely */
         }
         #startButton, #restartButton {
             display: block;
@@ -46,21 +48,14 @@
             background-color: #45a049;
         }
         #gameOverScreen {
-            display: none;
+            display: none; /* Hide game over screen initially */
         }
         #scoreboard {
             font-size: 20px; 
-            display: none;
+            display: none; /* Hide scoreboard initially */
         }
         h1, h2 {
             margin: 0;
-        }
-        #fence {
-            position: absolute;
-            bottom: 0;
-            width: 20px;
-            background: brown;
-            transition: height 0.2s;
         }
     </style>
 </head>
@@ -116,7 +111,9 @@
                 alert('Please enter a username');
                 return;
             }
-
+            // Save username in localStorage
+            localStorage.setItem('username', username);
+            
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'none';
             canvas.style.display = 'block';
@@ -193,7 +190,7 @@
             spawnCounter++;
             if (spawnCounter > 80 + Math.random() * 50) {
                 fenceHeight = 30; // reset height
-                fences.push({ x: canvas.width, y: fenceYPosition, height: fenceHeight });
+                fences.push({ x: canvas.width, y: fenceYPosition, height: fenceHeight, scored: false });
                 spawnCounter = 0;
             }
 
@@ -223,6 +220,9 @@
                 // Change height of fence for difficulty
                 fenceHeight = fenceHeight === 30 ? 50 : 30; // toggle between 30 and 50
                 fenceYPosition = canvas.height - fenceHeight;
+                for (let fence of fences) {
+                    fence.height = fenceYPosition;
+                }
             }
         }
 
@@ -257,21 +257,17 @@
         document.getElementById('restartButton').addEventListener('click', startGame);
 
         // Check for existing username and display welcome message
-        if (localStorage.getItem('username')) {
-            username = localStorage.getItem('username');
-            document.getElementById('welcomeBack').innerText = `Welcome back, ${username}!`;
+        username = localStorage.getItem('username');
+        if (username) {
             document.getElementById('welcomeBack').classList.remove('hidden');
+            document.getElementById('usernameInput').classList.add('hidden');
+            document.getElementById('startButton').classList.remove('hidden');
         } else {
             document.getElementById('usernameInput').classList.remove('hidden');
         }
-        
-        document.getElementById('usernameInput').addEventListener('blur', () => {
-            localStorage.setItem('username', document.getElementById('usernameInput').value);
-        });
 
         // Load high score
         highScore = localStorage.getItem('highScore') || 0;
-
     </script>
 </body>
 </html>
