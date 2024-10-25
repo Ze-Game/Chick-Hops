@@ -15,7 +15,19 @@
             height: 100vh;
             margin: 0;
         }
-        #gameWindow, #shopScreen, #gameOverScreen, #startScreen {
+        #startScreen {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0ffe0;
+            border: 2px solid #000;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        #gameWindow, #shopScreen, #gameOverScreen {
             display: none;
             text-align: center;
             position: relative;
@@ -52,12 +64,19 @@
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
+            cursor: pointer;
+        }
+        #welcomeMessage {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #007bff;
         }
     </style>
 </head>
 <body>
     <div id="startScreen">
         <h1>Chick Hops</h1>
+        <div id="welcomeMessage"></div>
         <button id="startButton">Start Game</button>
         <button id="shopButton">Shop</button>
     </div>
@@ -92,11 +111,13 @@
         const shopScreen = document.getElementById('shopScreen');
         const coinDisplay = document.getElementById('coinDisplay');
         const skinsContainer = document.getElementById('skins');
+        const welcomeMessage = document.getElementById('welcomeMessage');
 
         let isGameOver = false;
         let score = 0;
         let highScore = localStorage.getItem('highScore') || 0;
         let coins = localStorage.getItem('coins') || 0;
+        let username = localStorage.getItem('username') || '';
         let fenceSpeed = 5; // Initial speed of the fence
         let fenceInterval;
 
@@ -115,6 +136,23 @@
             gameWindow.style.display = 'none';
             gameOverScreen.style.display = 'none';
             shopScreen.style.display = 'none';
+
+            // Check for username and update welcome message
+            if (username) {
+                welcomeMessage.innerText = `Welcome back, ${username}!`;
+            } else {
+                welcomeMessage.innerText = 'Enter your username:';
+                const usernameInput = document.createElement('input');
+                usernameInput.type = 'text';
+                usernameInput.placeholder = 'Username';
+                usernameInput.addEventListener('change', function() {
+                    username = usernameInput.value;
+                    localStorage.setItem('username', username); // Save username to localStorage
+                    welcomeMessage.innerText = `Welcome back, ${username}!`;
+                    usernameInput.remove(); // Remove input after entering
+                });
+                document.getElementById('startScreen').appendChild(usernameInput);
+            }
         }
 
         function showShop() {
@@ -199,48 +237,44 @@
 
                 // Check for collision
                 if (fencePosition < 50 && fencePosition > 0) {
-                    if (parseInt(chick.style.bottom) < 40) { // Adjust for fence height
+                    if (parseInt(chick.style.bottom) < 40) { // Collision detection
                         endGame();
                     }
                 }
 
-                // Remove the fence if it goes off-screen
+                // Remove fence if it goes off screen
                 if (fencePosition < -50) {
                     clearInterval(moveInterval);
-                    fence.remove();
+                    gameWindow.removeChild(fence);
                     score++;
+                    coins++; // Convert score to coins
+                    localStorage.setItem('coins', coins); // Save coins to localStorage
                     scoreboard.innerText = `Score: ${score}`;
-
-                    // Increase speed every 20 fences
-                    if (score % 20 === 0) {
-                        fenceSpeed += 2; // Increase fence speed
-                    }
                 }
-            }, 100); // Move fence every 100 ms
+            }, 100); // Update fence position every 100 ms
         }
 
         function endGame() {
             isGameOver = true;
             clearInterval(fenceInterval);
-            coins += score; // Convert score to coins
-            localStorage.setItem('coins', coins); // Save coins to localStorage
             finalScore.innerText = `Final Score: ${score}`;
-            highScoreDisplay.innerText = `High Score: ${highScore}`;
             if (score > highScore) {
                 highScore = score;
-                localStorage.setItem('highScore', highScore); // Save new high score to localStorage
+                localStorage.setItem('highScore', highScore); // Save high score
             }
-            gameOverScreen.style.display = 'flex';
+            highScoreDisplay.innerText = `High Score: ${highScore}`;
+            gameOverScreen.style.display = 'block';
             gameWindow.style.display = 'none';
-            scoreboard.style.display = 'none';
         }
 
         function resetGame() {
             score = 0;
             isGameOver = false;
-            coins = localStorage.getItem('coins') || 0;
-            highScore = localStorage.getItem('highScore') || 0;
-            scoreboard.innerText = `Score: ${score}`;
+            coins = localStorage.getItem('coins') || 0; // Load coins from localStorage
+            document.getElementById('startScreen').style.display = 'flex';
+            gameWindow.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            shopScreen.style.display = 'none';
         }
     </script>
 </body>
