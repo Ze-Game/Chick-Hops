@@ -13,6 +13,7 @@
             height: 100vh;
             background-color: #f0f8ff;
             font-family: Arial, sans-serif;
+            margin: 0; /* Remove default margin */
         }
         canvas {
             display: none; /* Hide canvas initially */
@@ -168,13 +169,13 @@
         function updateFences() {
             spawnCounter++;
             if (spawnCounter > 80 + Math.random() * 50) {
-                let fenceHeight = 30; // Fence height is constant for now
+                let fenceHeight = Math.random() > 0.5 ? 30 : 60; // Random height for fences
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
                 spawnCounter = 0;
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= 3;
+                fences[i].x -= 3; // Move fences towards the chick
                 if (fences[i].x + 20 < 0) {
                     fences.splice(i, 1);
                 }
@@ -182,15 +183,15 @@
         }
 
         function checkCollision() {
-            for (let i = fences.length - 1; i >= 0; i--) {
-                const fence = fences[i];
-                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && chick.y + chick.height > fence.y) {
-                    isGameOver = true; // Collision detected
-                } else if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && chick.y < fence.y) {
-                    // Increment score only if chick hops over the fence
-                    score++;
-                    document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
-                    fences.splice(i, 1); // Remove the fence after jumping over it
+            for (let fence of fences) {
+                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20) {
+                    if (chick.y + chick.height > fence.y) {
+                        isGameOver = true; // Collision detected
+                    } else if (chick.y < fence.y) {
+                        // Increment score only if chick hops over the fence
+                        score++;
+                        document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+                    }
                 }
             }
         }
