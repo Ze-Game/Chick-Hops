@@ -1,70 +1,143 @@
-// Initialize username and high score
+// Variables
 let username = localStorage.getItem('username');
+let coins = parseInt(localStorage.getItem('coins')) || 0;
+let equippedSkin = localStorage.getItem('equippedSkin') || 'default';
 let highScore = parseInt(localStorage.getItem('highScore')) || 0;
+let currentScore = 0;
+const skinColors = ['blue', 'green', 'orange', 'red', 'violet', 'black', 'pink', 'gray', 'white', 'brown'];
+const skinCost = 100;
 
-// Prompt the user for a username if not already set
-if (!username) {
-    username = prompt("Enter your username:");
+// DOM Elements
+const usernameInput = document.getElementById('usernameInput');
+const saveUsernameButton = document.getElementById('saveUsernameButton');
+const welcomeMessage = document.getElementById('welcomeMessage');
+const userDisplay = document.getElementById('userDisplay');
+const startButton = document.getElementById('startButton');
+const shopButton = document.getElementById('shopButton');
+const gamePage = document.getElementById('gamePage');
+const startScreen = document.getElementById('startScreen');
+const shopPage = document.getElementById('shopPage');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const finalScore = document.getElementById('finalScore');
+const highScoreDisplay = document.getElementById('highScore');
+const skinsContainer = document.getElementById('skins');
+const coinsDisplay = document.getElementById('coinsDisplay');
+const backToStartButton = document.getElementById('backToStartButton');
+const shopButtonGameOver = document.getElementById('shopButtonGameOver');
+const restartButton = document.getElementById('restartButton');
+
+// Load Initial State
+if (username) {
+    userDisplay.textContent = username;
+    welcomeMessage.style.display = 'block';
+    startButton.style.display = 'block';
+} else {
+    document.getElementById('usernameContainer').style.display = 'flex';
+}
+
+coinsDisplay.textContent = `Coins: ${coins}`;
+
+// Save Username
+saveUsernameButton.addEventListener('click', () => {
+    username = usernameInput.value.trim();
     if (username) {
         localStorage.setItem('username', username);
-    } else {
-        // Default username if no username is provided
-        username = "Player";
-        localStorage.setItem('username', username);
-    }
-}
-
-// Function to show the Game Over screen
-function showGameOver() {
-    canvas.style.display = 'none';
-    document.getElementById('gameOverScreen').style.display = 'block';
-    document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
-
-    // Update high score if current score is higher
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('highScore', highScore);
-    }
-
-    // Display a random quote based on the score
-    let quote;
-    if (score < 10) {
-        const negativeQuotes = [
-            "Pretty suck!", "You need to touch some grass!", "Really, below 10?", "You need to quit!",
-            "Get some new glasses.", "My dog is better than you.", "It's not even that hard.", "Skill Issue",
-            "You Monster! The chick died!", "Is that it?"
-        ];
-        quote = negativeQuotes[Math.floor(Math.random() * negativeQuotes.length)];
-    } else if (score < 30) {
-        const averageQuotes = [
-            "You're really working that hard?", "You can still try... If you can.", "Well... I can see you're doing great.",
-            "Is it challenging?", "Oh! I see."
-        ];
-        quote = averageQuotes[Math.floor(Math.random() * averageQuotes.length)];
-    } else {
-        const positiveQuotes = [
-            "Amazing!", "I can't believe you managed to get here?", "Outstanding!", "You made the chick so proud.",
-            "You're Awesome!", "You crashed this game!", "That's the skill!!!", "Well done!", "Great job!", "Huge Congrats!!!"
-        ];
-        quote = positiveQuotes[Math.floor(Math.random() * positiveQuotes.length)];
-    }
-    document.getElementById('quote').innerHTML = quote;
-}
-
-// Event listeners
-canvas.addEventListener('click', () => {
-    if (!chick.isJumping) {
-        chick.velocityY = -10;
-        chick.isJumping = true;
+        userDisplay.textContent = username;
+        document.getElementById('usernameContainer').style.display = 'none';
+        welcomeMessage.style.display = 'block';
+        startButton.style.display = 'block';
     }
 });
 
-document.getElementById('startButton').addEventListener('click', startGame);
-document.getElementById('restartButton').addEventListener('click', startGame);
+// Start Game Button
+startButton.addEventListener('click', () => {
+    startScreen.style.display = 'none';
+    gamePage.style.display = 'block';
+    startGame();
+});
 
-// Function to manually reset high score (optional, for development purposes)
-function resetHighScore() {
-    highScore = 0;
-    localStorage.removeItem('highScore');
-        }
-            
+// Shop Button
+shopButton.addEventListener('click', openShop);
+backToStartButton.addEventListener('click', () => {
+    shopPage.style.display = 'none';
+    startScreen.style.display = 'block';
+});
+
+// Generate Skins
+function openShop() {
+    startScreen.style.display = 'none';
+    shopPage.style.display = 'block';
+    skinsContainer.innerHTML = '';
+
+    skinColors.forEach(color => {
+        const skinDiv = document.createElement('div');
+        skinDiv.classList.add('skin');
+        skinDiv.style.backgroundColor = color;
+        skinDiv.addEventListener('click', () => purchaseSkin(color));
+        skinsContainer.appendChild(skinDiv);
+    });
+}
+
+// Purchase Skins
+function purchaseSkin(color) {
+    if (coins >= skinCost) {
+        coins -= skinCost;
+        localStorage.setItem('coins', coins);
+        equippedSkin = color;
+        localStorage.setItem('equippedSkin', color);
+        alert(`You have equipped the ${color} skin!`);
+        coinsDisplay.textContent = `Coins: ${coins}`;
+    } else {
+        alert('Not enough coins!');
+    }
+}
+
+// Game Over
+function gameOver() {
+    gamePage.style.display = 'none';
+    gameOverScreen.style.display = 'block';
+    finalScore.textContent = `Final Score: ${currentScore}`;
+    if (currentScore > highScore) {
+        highScore = currentScore;
+        localStorage.setItem('highScore', highScore);
+    }
+    highScoreDisplay.textContent = `High Score: ${highScore}`;
+}
+
+// Restart Button
+restartButton.addEventListener('click', () => {
+    gameOverScreen.style.display = 'none';
+    gamePage.style.display = 'block';
+    startGame();
+});
+
+shopButtonGameOver.addEventListener('click', openShop);
+
+// Start Game
+function startGame() {
+    currentScore = 0;
+    updateScore();
+    // Game logic goes here
+}
+
+// Update Score
+function updateScore() {
+    scoreDisplay.textContent = `Score: ${currentScore}`;
+    coinsDisplay.textContent = `Coins: ${coins}`;
+}
+
+// Example Function for Adding Points and Converting to Coins
+function addPoints(points) {
+    currentScore += points;
+    coins += points;
+    updateScore();
+    localStorage.setItem('coins', coins);
+}
+
+// Example Fence Speed Increment
+function updateFenceSpeed(fencesPassed) {
+    if (fencesPassed % 20 === 0 && fencesPassed > 0) {
+        // Increment the fence speed here
+    }
+}
