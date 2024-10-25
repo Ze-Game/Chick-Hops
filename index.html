@@ -93,6 +93,7 @@
         let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
         let isGameOver = false;
         let spawnCounter = 0;
+        let lastScoredFence = null; // Track the last fence scored
 
         function startGame() {
             document.getElementById('startScreen').style.display = 'none'; // Hide the start screen
@@ -107,6 +108,7 @@
             chick.isJumping = false;
             fences = [];
             spawnCounter = 0;
+            lastScoredFence = null; // Reset last scored fence
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             gameLoop();
         }
@@ -188,12 +190,22 @@
                     if (chick.y + chick.height >= fence.y) {
                         isGameOver = true; // Collision detected
                     } else if (chick.y < fence.y) {
-                        // Increment score only if chick hops over the fence
-                        score++;
-                        document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+                        // Increment score only if chick hops over the fence and hasn't already scored on it
+                        if (lastScoredFence !== fence) {
+                            score++;
+                            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+                            lastScoredFence = fence; // Update last scored fence
+                        }
                     }
                 }
             }
+
+            // Reset last scored fence when fences go off screen
+            fences.forEach(fence => {
+                if (fence.x + 20 < 0) {
+                    lastScoredFence = null; // Reset when the fence is off-screen
+                }
+            });
         }
 
         function showGameOver() {
