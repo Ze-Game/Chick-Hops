@@ -1,30 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chick Hops</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chick Hops</title>
+    <style>
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: white;
+        }
+        #startButton, #restartButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-  <!-- Start Page -->
-  <div id="startPage" class="page">
-    <h1>Chick Hops</h1>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
     <button id="startButton">Start Game</button>
-  </div>
+    <button id="restartButton" style="display:none;">Restart Game</button>
+    <div id="scoreboard" style="text-align: center; font-size: 24px;"></div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-  <!-- Game Page -->
-  <canvas id="gameCanvas" class="page"></canvas>
+        let chick = {
+            x: 50,
+            y: canvas.height - 50,
+            width: 30,
+            height: 30,
+            velocityY: 0,
+            gravity: 0.5,
+            isJumping: false,
+        };
 
-  <!-- Game Over Page -->
-  <div id="gameOverPage" class="page">
-    <h1>Game Over!</h1>
-    <p id="finalScore"></p>
-    <p id="highScore"></p>
-    <button id="restartButton">Restart</button>
-    <p id="quote"></p>
-  </div>
+        let fences = [];
+        let score = 0;
+        let highScore = 0;
+        let isGameOver = false;
 
-  <script src="script.js"></script>
+        function startGame() {
+            score = 0;
+            isGameOver = false;
+            chick.y = canvas.height - 50;
+            chick.velocityY = 0;
+            chick.isJumping = false;
+            fences = [];
+            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+            document.getElementById('restartButton').style.display = 'none';
+            gameLoop();
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawChick();
+            drawFences();
+            updateChick();
+            updateFences();
+            checkCollision();
+            if (!isGameOver) {
+                requestAnimationFrame(gameLoop);
+            } else {
+                showGameOver();
+            }
+        }
+
+        function drawChick() {
+            ctx.fillStyle = "yellow"; // Chick's color
+            ctx.beginPath();
+            // Draw the body
+            ctx.ellipse(chick.x + chick.width / 2, chick.y + chick.height / 2, 15, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw the head
+            ctx.beginPath();
+            ctx.ellipse(chick.x + chick.width / 2, chick.y - 10, 10, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw the beak (optional)
+            ctx.fillStyle = "orange";
+            ctx.beginPath();
+            ctx.moveTo(chick.x + chick.width / 2 + 10, chick.y - 10);
+            ctx.lineTo(chick.x + chick.width / 2 + 15, chick.y - 5);
+            ctx.lineTo(chick.x + chick.width / 2 + 10, chick.y);
+            ctx.fill();
+        }
+
+        function updateChick() {
+            chick.velocityY += chick.gravity;
+            chick.y += chick.velocityY;
+
+            // Prevent chick from falling below the ground
+            if (chick.y + chick.height >= canvas.height) {
+                chick.y = canvas.height - chick.height;
+                chick.isJumping = false; // Reset jumping status
+            }
+        }
+
+        function drawFences() {
+            for (let fence of fences) {
+                ctx.fillStyle = "brown";
+                ctx.fillRect(fence.x, fence.y, 20, fence.height);
+            }
+        }
+
+        function updateFences() {
+            if (Math.random() < 0.02) {
+                let fenceHeight = Math.random() * 60 + 20;
+                fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
+            }
+
+            for (let i = fences.length - 1; i >= 0; i--) {
+                fences[i].x -= 2; // Move fence to the left
+                if (fences[i].x + 20 < 0) {
+                    fences.splice(i, 1);
+                    score++; // Increment score when fence passes
+                    document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+                }
+            }
+        }
+
+        function checkCollision() {
+            for (let fence of fences) {
+                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && 
+                    chick.y + chick.height > fence.y) {
+                    isGameOver = true;
+                }
+            }
+        }
+
+        function showGameOver() {
+            ctx.fillStyle = "red";
+            ctx.font = "40px Arial";
+            ctx.fillText("Game Over", canvas.width / 2 - 100, canvas.height / 2 - 20);
+            ctx.font = "24px Arial";
+            ctx.fillText(`Score: ${score}`, canvas.width / 2 - 40, canvas.height / 2 + 20);
+            document.getElementById('restartButton').style.display = 'block';
+            highScore = Math.max(highScore, score);
+            document.getElementById('scoreboard').innerHTML += ` <br> High Score: ${highScore}`;
+        }
+
+        // Start and restart buttons
+        document.getElementById('startButton').onclick = startGame;
+        document.getElementById('restartButton').onclick = startGame;
+
+        // Chick jumping on canvas tap
+        canvas.addEventListener('click', () => {
+            if (!isGameOver && !chick.isJumping) {
+                chick.velocityY = -10;  // Jump only when the chick is on the ground
+                chick.isJumping = true; // Set jumping status to true
+            }
+        });
+    </script>
 </body>
-</html>
+  </html>
+  
