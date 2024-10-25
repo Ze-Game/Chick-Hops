@@ -210,8 +210,10 @@
 
         function showGameOver() {
             canvas.style.display = 'none'; // Hide the game canvas
-            document.getElementById('gameOverScreen').style.display = 'block'; // Show the game over screen
-            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
+            document.getElementById('gameOverScreen').style.display = 'flex'; // Use flex to center the game over screen
+            document.getElementById('gameOverScreen').style.alignItems = 'center'; // Center vertically
+            document.getElementById('gameOverScreen').style.justifyContent = 'center'; // Center horizontally
+            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`; // Display final score
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('highScore', highScore);
