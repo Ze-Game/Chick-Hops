@@ -96,7 +96,7 @@
     <canvas id="gameCanvas" width="800" height="400"></canvas>
     
     <!-- Game Over Screen -->
-    <div id="gameOverScreen">
+    <div id="gameOverScreen" style="display: none;">
         <h2>Game Over</h2>
         <div id="finalScore"></div>
         <div id="quote"></div>
@@ -243,7 +243,7 @@
             if (score > 100) {
                 // Change height of fence for difficulty
                 fenceHeight = fenceHeight === 30 ? 50 : 30; // toggle between 30 and 50
-                fenceYPosition = canvas.height - fenceHeight; // Update fence position
+                fenceYPosition = canvas.height - fenceHeight; // update Y position
             }
         }
 
