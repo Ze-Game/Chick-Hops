@@ -243,9 +243,7 @@
             if (score > 100) {
                 // Change height of fence for difficulty
                 fenceHeight = fenceHeight === 30 ? 50 : 30; // alternate heights
-                for (let fence of fences) {
-                    fence.height = fenceHeight;
-                }
+                fenceYPosition = canvas.height - fenceHeight; // keep at the ground
             }
         }
 
@@ -274,8 +272,12 @@
                 return "Pretty suck!";
             } else if (score < 30) {
                 return "You're really working that hard?";
+            } else if (score < 50) {
+                return "Well... I can see you're doing great.";
+            } else if (score < 100) {
+                return "Outstanding!";
             } else {
-                return "Amazing!";
+                return "You're Awesome!";
             }
         }
 
@@ -300,10 +302,13 @@
         if (username) {
             document.getElementById('welcomeBack').innerText = `Welcome back, ${username}!`;
             document.getElementById('welcomeBack').classList.remove('hidden');
-            document.getElementById('usernameInput').style.display = 'none'; // Hide username input if exists
+            document.getElementById('usernameInput').classList.add('hidden'); // Hide username input if exists
             document.getElementById('startButton').classList.remove('hidden');
+
+            // Start the game automatically if there is a username
+            startGame();
         } else {
-            document.getElementById('usernameInput').style.display = 'block';
+            document.getElementById('usernameInput').classList.remove('hidden');
         }
 
         // Load high score
@@ -311,4 +316,3 @@
     </script>
 </body>
 </html>
-    
