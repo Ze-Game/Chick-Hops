@@ -19,7 +19,7 @@
         #startScreen, #gameOverScreen, #welcomeBack {
             text-align: center;
         }
-        #startButton, #restartButton {
+        #startButton, #restartButton, #startGameButton {
             display: block;
             margin: 20px auto;
             padding: 10px 20px;
@@ -33,8 +33,13 @@
             font-size: 20px; 
             display: none;
         }
-        h1, h2 {
+        h1 {
             margin: 0;
+            font-size: 36px; /* Game title size */
+        }
+        h2 {
+            margin: 0;
+            font-size: 24px; /* Welcome back message size */
         }
     </style>
 </head>
@@ -48,6 +53,7 @@
 
     <!-- Welcome Back Message -->
     <div id="welcomeBack" style="display: none;">
+        <h1>Chick Hops</h1> <!-- Title retained -->
         <h2>Welcome Back, <span id="welcomeUsername"></span>!</h2>
         <button id="startGameButton">Start Game</button>
     </div>
