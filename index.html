@@ -67,7 +67,7 @@
         <h1>Chick Hops</h1>
         <div id="welcomeMessage" style="display: none;"></div>
         <button id="startButton">Start Game</button>
-        <button id="shopButton" style="display: none;">Shop</button> <!-- Shop button -->
+        <button id="shopButton">Shop</button> <!-- Shop button -->
     </div>
 
     <!-- Game Canvas -->
@@ -79,7 +79,7 @@
         <div id="finalScore"></div>  <!-- Display final score -->
         <div id="highScore"></div>    <!-- Display high score -->
         <button id="restartButton">Restart Game</button>
-        <button id="shopButton">Shop</button> <!-- Shop button -->
+        <button id="shopButtonGameOver">Shop</button> <!-- Shop button -->
     </div>
 
     <!-- Shop Screen -->
@@ -247,7 +247,7 @@
             document.getElementById('scoreboard').style.display = 'none'; // Hide scoreboard
         }
 
-        // Handle tapping on the screen to jump
+        // Handle tapping on the canvas to jump
         canvas.addEventListener('click', function() {
             if (!isGameOver && !chick.isJumping) {
                 chick.velocityY = chick.jumpStrength; // Set upward velocity to jump
@@ -260,7 +260,7 @@
             startGame();
         });
 
-        // Shop button event
+        // Shop button event from start screen
         document.getElementById('shopButton').addEventListener('click', function() {
             document.getElementById('startScreen').style.display = 'none'; // Hide start screen
             document.getElementById('gameOverScreen').style.display = 'none'; // Hide game over screen
@@ -268,6 +268,20 @@
             document.getElementById('coinDisplay').innerText = `Coins: ${coins}`; // Show coins
 
             // Display skin buttons
+            displaySkinButtons();
+        });
+
+        // Shop button event from game over screen
+        document.getElementById('shopButtonGameOver').addEventListener('click', function() {
+            document.getElementById('gameOverScreen').style.display = 'none'; // Hide game over screen
+            document.getElementById('shopScreen').style.display = 'block'; // Show shop screen
+            document.getElementById('coinDisplay').innerText = `Coins: ${coins}`; // Show coins
+
+            // Display skin buttons
+            displaySkinButtons();
+        });
+
+        function displaySkinButtons() {
             const skinColors = ['blue', 'green', 'orange', 'red', 'violet', 'black', 'pink', 'gray', 'white', 'brown'];
             const skinsContainer = document.getElementById('skins');
             skinsContainer.innerHTML = ''; // Clear previous skin buttons
@@ -285,7 +299,7 @@
                 });
                 skinsContainer.appendChild(button);
             });
-        });
+        }
 
         // Back to start button in shop
         document.getElementById('backToStart').addEventListener('click', function() {
