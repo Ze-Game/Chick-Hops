@@ -218,8 +218,10 @@
             }
 
             // Increase speed when score reaches 30
-            if (score >= 30 && fenceSpeed < 4) { // Adjusted maximum speed to 4
-                fenceSpeed = 4; // Increase fence speed moderately
+            if (score >= 30 && score < 50) { // Speed increase between 30 and 50
+                fenceSpeed = 4; // Moderate speed increase
+            } else if (score >= 50) { // Further speed increase above 50
+                fenceSpeed = 5; // Maximum speed increase
             }
         }
 
@@ -232,8 +234,6 @@
         }
 
         function showGameOver() {
-            document.getElementById('gameCanvas').style.display = 'none';
-            document.getElementById('scoreboard').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'block';
             document.getElementById('finalScore').innerText = `Your Score: ${score}`;
             document.getElementById('highScore').innerText = `High Score: ${highScore}`;
@@ -298,20 +298,19 @@
         // Handle jumping
         window.addEventListener('keydown', function(event) {
             if (event.code === 'Space' || event.code === 'Enter') {
-                if (!chick.isJumping) {
-                    chick.velocityY = -10; // Jump force
-                    chick.isJumping = true; // Set jumping status
-                }
+                jump();
             }
         });
 
         // Tap to jump (for mobile devices)
-        canvas.addEventListener('click', function() {
+        canvas.addEventListener('click', jump);
+
+        function jump() {
             if (!chick.isJumping) {
                 chick.velocityY = -10; // Jump force
                 chick.isJumping = true; // Set jumping status
             }
-        });
+        }
     </script>
 </body>
 </html>
