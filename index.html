@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chick Hops</title>
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
         canvas {
             display: block;
-            margin: 0 auto;
+            margin: 20px auto;
             background: white;
+            border: 1px solid black;
         }
         #startButton, #restartButton {
             display: block;
@@ -20,6 +26,11 @@
             display: none;
             text-align: center;
             font-size: 24px;
+        }
+        #scoreboard {
+            text-align: center; 
+            font-size: 24px; 
+            display: none;
         }
     </style>
 </head>
@@ -34,7 +45,7 @@
         <div id="finalScore"></div>
         <button id="restartButton">Restart Game</button>
     </div>
-    <div id="scoreboard" style="text-align: center; font-size: 24px; display:none;"></div>
+    <div id="scoreboard"></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -89,17 +100,9 @@
         function drawChick() {
             ctx.fillStyle = "yellow"; // Chick's color
             ctx.beginPath();
-            // Draw the body
             ctx.ellipse(chick.x + chick.width / 2, chick.y + chick.height / 2, 15, 20, 0, 0, Math.PI * 2);
             ctx.fill();
-
-            // Draw the head
-            ctx.beginPath();
-            ctx.ellipse(chick.x + chick.width / 2, chick.y - 10, 10, 10, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Draw the beak (optional)
-            ctx.fillStyle = "orange";
+            ctx.fillStyle = "orange"; // Beak color
             ctx.beginPath();
             ctx.moveTo(chick.x + chick.width / 2 + 10, chick.y - 10);
             ctx.lineTo(chick.x + chick.width / 2 + 15, chick.y - 5);
