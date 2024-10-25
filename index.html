@@ -95,10 +95,10 @@
         let spawnCounter = 0;
 
         function startGame() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('gameOverScreen').style.display = 'none';
-            canvas.style.display = 'block';
-            document.getElementById('scoreboard').style.display = 'block';
+            document.getElementById('startScreen').style.display = 'none'; // Hide the start screen
+            document.getElementById('gameOverScreen').style.display = 'none'; // Hide the game over screen
+            canvas.style.display = 'block'; // Show the game canvas
+            document.getElementById('scoreboard').style.display = 'block'; // Show the scoreboard
 
             score = 0;
             isGameOver = false;
@@ -197,8 +197,8 @@
         }
 
         function showGameOver() {
-            canvas.style.display = 'none';
-            document.getElementById('gameOverScreen').style.display = 'block';
+            canvas.style.display = 'none'; // Hide the game canvas
+            document.getElementById('gameOverScreen').style.display = 'block'; // Show the game over screen
             document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
             if (score > highScore) {
                 highScore = score;
