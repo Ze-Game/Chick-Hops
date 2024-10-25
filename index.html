@@ -160,13 +160,15 @@
         }
 
         function updateChick() {
-            chick.velocityY += chick.gravity;
-            chick.y += chick.velocityY;
+            if (chick.isJumping) {
+                chick.velocityY += chick.gravity;
+                chick.y += chick.velocityY;
 
-            // Prevent chick from falling below the ground
-            if (chick.y + chick.height >= canvas.height) {
-                chick.y = canvas.height - chick.height;
-                chick.isJumping = false; // Reset jumping status
+                // Prevent chick from falling below the ground
+                if (chick.y + chick.height >= canvas.height) {
+                    chick.y = canvas.height - chick.height;
+                    chick.isJumping = false; // Reset jumping status
+                }
             }
         }
 
@@ -202,46 +204,25 @@
                         // Increment score only if chick hops over the fence and hasn't already scored on it
                         if (!scoredFences.has(fence)) {
                             score++;
+                            scoredFences.add(fence);
                             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
-                            scoredFences.add(fence); // Mark the fence as scored
                         }
                     }
                 }
             }
-
-            // Reset scored fences when fences go off screen
-            fences.forEach(fence => {
-                if (fence.x + 20 < 0) {
-                    scoredFences.delete(fence); // Reset when the fence is off-screen
-                }
-            });
         }
 
         function showGameOver() {
             canvas.style.display = 'none'; // Hide the game canvas
-            document.getElementById('gameOverScreen').style.display = 'flex'; // Use flex to center the game over screen
-            document.getElementById('gameOverScreen').style.alignItems = 'center'; // Center vertically
-            document.getElementById('gameOverScreen').style.justifyContent = 'center'; // Center horizontally
-            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`; // Display final score
+            document.getElementById('gameOverScreen').style.display = 'flex'; // Show game over screen
+            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
             if (score > highScore) {
                 highScore = score;
-                localStorage.setItem('highScore', highScore);
+                localStorage.setItem('highScore', highScore); // Save new high score
             }
-            document.getElementById('highScore').innerHTML = `High Score: ${highScore}`; // Show high score
+            document.getElementById('highScore').innerHTML = `High Score: ${highScore}`;
         }
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === " " && !isGameOver) { // Jump on spacebar press
-                if (!chick.isJumping) {
-                    chick.isJumping = true;
-                    chick.velocityY = chick.jumpStrength; // Set jump velocity
-                }
-            }
-        });
-
-        document.getElementById('startButton').addEventListener('click', startGame);
-        document.getElementById('restartButton').addEventListener('click', startGame);
-        
         // Username handling
         const saveUsernameButton = document.getElementById('saveUsernameButton');
         const welcomeMessage = document.getElementById('welcomeMessage');
@@ -266,6 +247,9 @@
                 }
             });
         }
+
+        document.getElementById('startButton').addEventListener('click', startGame);
+        document.getElementById('restartButton').addEventListener('click', startGame);
     </script>
 </body>
 </html>
