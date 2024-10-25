@@ -66,6 +66,7 @@
 
     <!-- Welcome Back Message -->
     <div id="welcomeBack" style="display: none;">
+        <h1>Chick Hops</h1> <!-- Added title here -->
         <h2>Welcome Back, <span id="welcomeUsername"></span>!</h2>
         <button id="startGameButton">Start Game</button>
     </div>
@@ -101,6 +102,7 @@
         let score = 0;
         let isGameOver = false;
         let username = localStorage.getItem('username') || '';
+        let fenceSpeed = 3; // Initial speed of fences
 
         function startGame() {
             if (!username) {
@@ -124,6 +126,7 @@
             chick.velocityY = 0;
             chick.isJumping = false;
             fences = [];
+            fenceSpeed = 3; // Reset fence speed
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             gameLoop();
         }
@@ -201,12 +204,17 @@
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= 3; // Speed at which fences move
+                fences[i].x -= fenceSpeed; // Speed at which fences move
                 if (fences[i].x + 20 < 0) {
                     fences.splice(i, 1);
                     score++;
                     document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
                 }
+            }
+
+            // Increase speed when score reaches 30
+            if (score >= 30) {
+                fenceSpeed = 5; // Increase fence speed
             }
         }
 
@@ -235,7 +243,7 @@
                     "Get some new glasses.",
                     "My dog is better than you.",
                     "It's not even that hard.",
-                    "Skill Issue",
+                    "Skill Issue.",
                     "You Monster! The chick died!",
                     "Is that it?"
                 ];
@@ -252,7 +260,7 @@
             } else {
                 const positiveQuotes = [
                     "Amazing!",
-                    "I can't believe you manage to get here!",
+                    "I can't believe you managed to get here?",
                     "Outstanding!",
                     "You made the chick so proud.",
                     "You're Awesome!",
