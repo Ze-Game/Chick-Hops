@@ -7,192 +7,214 @@
     <style>
         body {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            margin: 0;
         }
-        canvas {
-            display: block;
-            margin: 20px auto;
-            background: white;
-            border: 1px solid black;
+        .hidden {
+            display: none;
         }
-        #startScreen, #gameOverScreen {
+        #start, #game, #gameOver {
             text-align: center;
         }
-        #startButton, #restartButton {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            font-size: 18px;
+        .chick {
+            width: 50px; /* Adjust as necessary */
+            height: 50px; /* Adjust as necessary */
+            background: url('your-chick-image-url.png') no-repeat center center; /* Add your chick image URL */
+            background-size: contain;
+            position: absolute;
+            bottom: 50px; /* Adjust as necessary */
         }
-        #gameOverScreen, #gameCanvas {
-            display: none;
+        .fence {
+            width: 40px; /* Adjust as necessary */
+            height: 100px; /* Adjust as necessary */
+            background: url('your-fence-image-url.png') no-repeat center center; /* Add your fence image URL */
+            background-size: contain;
+            position: absolute;
+            bottom: 0;
         }
-        #scoreboard {
-            text-align: center; 
-            font-size: 20px; 
-            display: none;
-        }
-        h1, h2 {
-            margin: 0;
+        #score, #highScore, #gameOverText {
+            font-size: 20px; /* Adjust font size */
+            margin: 10px;
         }
     </style>
 </head>
 <body>
-    <!-- Start Screen -->
-    <div id="startScreen">
+    <div id="start">
         <h1>Chick Hops</h1>
-        <button id="startButton">Start Game</button>
+        <button onclick="startGame()">Start</button>
     </div>
 
-    <!-- Game Canvas -->
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-    
-    <!-- Game Over Screen -->
-    <div id="gameOverScreen">
-        <h2>Game Over</h2>
-        <div id="finalScore"></div>
-        <button id="restartButton">Restart Game</button>
+    <div id="game" class="hidden">
+        <div id="score">Score: 0</div>
+        <div id="highScore">High Score: 0</div>
+        <div class="chick" id="chick"></div>
+        <div id="fences"></div>
     </div>
 
-    <div id="scoreboard"></div>
+    <div id="gameOver" class="hidden">
+        <h1>Game Over</h1>
+        <div id="gameOverText"></div>
+        <button onclick="restartGame()">Restart</button>
+    </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        let chick = document.getElementById("chick");
+        let fencesContainer = document.getElementById("fences");
+        let scoreDisplay = document.getElementById("score");
+        let highScoreDisplay = document.getElementById("highScore");
+        let gameOverText = document.getElementById("gameOverText");
+        let startDiv = document.getElementById("start");
+        let gameDiv = document.getElementById("game");
+        let gameOverDiv = document.getElementById("gameOver");
 
-        let chick = {
-            x: 50,
-            y: canvas.height - 50,
-            width: 30,
-            height: 30,
-            velocityY: 0,
-            gravity: 0.5,
-            isJumping: false,
-        };
-
-        let fences = [];
+        let isJumping = false;
         let score = 0;
         let highScore = 0;
-        let isGameOver = false;
-        let spawnCounter = 0;
+        let gameInterval;
+        let fenceInterval;
 
         function startGame() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('gameOverScreen').style.display = 'none';
-            canvas.style.display = 'block';
-            document.getElementById('scoreboard').style.display = 'block';
-
+            startDiv.classList.add("hidden");
+            gameDiv.classList.remove("hidden");
             score = 0;
-            isGameOver = false;
-            chick.y = canvas.height - 50;
-            chick.velocityY = 0;
-            chick.isJumping = false;
-            fences = [];
-            spawnCounter = 0;
-            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
-            gameLoop();
+            updateScore();
+            createFence();
+            gameInterval = setInterval(moveFences, 20);
         }
 
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawChick();
-            drawFences();
-            updateChick();
-            updateFences();
-            checkCollision();
-            if (!isGameOver) {
-                requestAnimationFrame(gameLoop);
+        function createFence() {
+            let fence = document.createElement("div");
+            fence.classList.add("fence");
+            fence.style.left = "100vw"; // Start from the right
+            fence.style.bottom = "0px"; // Position at the bottom
+
+            let randomHeight = Math.random() * (200) + 50; // Random height between 50 and 250
+            fence.style.height = randomHeight + "px"; // Set random height
+
+            fencesContainer.appendChild(fence);
+            moveFence(fence);
+        }
+
+        function moveFence(fence) {
+            let moveInterval = setInterval(() => {
+                let fencePosition = parseInt(fence.style.left);
+                if (fencePosition < -50) { // If the fence is out of view
+                    fence.remove();
+                    clearInterval(moveInterval);
+                    score++;
+                    updateScore();
+                    createFence(); // Create a new fence
+                } else {
+                    fence.style.left = fencePosition - 5 + "px"; // Move fence left
+                }
+
+                // Collision detection
+                if (collisionDetection(chick, fence)) {
+                    clearInterval(moveInterval);
+                    endGame();
+                }
+            }, 20);
+        }
+
+        function moveFences() {
+            let fences = document.querySelectorAll(".fence");
+            fences.forEach(fence => {
+                let fencePosition = parseInt(fence.style.left);
+                if (fencePosition < 0) {
+                    fence.remove();
+                } else {
+                    fence.style.left = fencePosition - 5 + "px";
+                }
+            });
+        }
+
+        function collisionDetection(chick, fence) {
+            let chickRect = chick.getBoundingClientRect();
+            let fenceRect = fence.getBoundingClientRect();
+            return (
+                chickRect.left < fenceRect.right &&
+                chickRect.right > fenceRect.left &&
+                chickRect.bottom > fenceRect.top
+            );
+        }
+
+        function updateScore() {
+            scoreDisplay.innerText = "Score: " + score;
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.innerText = "High Score: " + highScore;
+            }
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            gameDiv.classList.add("hidden");
+            gameOverDiv.classList.remove("hidden");
+            gameOverText.innerText = getRandomQuote(score);
+        }
+
+        function getRandomQuote(score) {
+            const negativeQuotes = [
+                "Pretty suck!",
+                "You need to touch some grass!",
+                "Really, below 10?",
+                "You need to quit!",
+                "Get some new glasses.",
+                "My dog is better than you.",
+                "It's not even that hard.",
+                "Skill Issue",
+                "You Monster! The chick died!",
+                "Is that it?"
+            ];
+            const averageQuotes = [
+                "You're really working that hard?",
+                "You can still try... If you can.",
+                "Well... I can see you're doing great.",
+                "Is it challenging?",
+                "Oh! I see."
+            ];
+            const highQuotes = [
+                "Amazing!",
+                "I can't believe you manage to get here?",
+                "Outstanding!",
+                "You made the chick so proud.",
+                "You're Awesome!",
+                "You crashed this game!",
+                "That's the skill!!!",
+                "Well done!",
+                "Great job!",
+                "Huge Congrats!!!"
+            ];
+
+            if (score < 10) {
+                return negativeQuotes[Math.floor(Math.random() * negativeQuotes.length)];
+            } else if (score < 30) {
+                return averageQuotes[Math.floor(Math.random() * averageQuotes.length)];
             } else {
-                showGameOver();
+                return highQuotes[Math.floor(Math.random() * highQuotes.length)];
             }
         }
 
-        function drawChick() {
-            ctx.fillStyle = "yellow"; // Chick's color (body)
-            ctx.beginPath();
-            ctx.ellipse(chick.x + 15, chick.y + 20, 15, 20, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = "orange"; // Chick's beak
-            ctx.beginPath();
-            ctx.moveTo(chick.x + 25, chick.y + 10);
-            ctx.lineTo(chick.x + 35, chick.y + 15);
-            ctx.lineTo(chick.x + 25, chick.y + 20);
-            ctx.fill();
-
-            ctx.fillStyle = "black"; // Chick's eye
-            ctx.beginPath();
-            ctx.arc(chick.x + 10, chick.y + 10, 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = "orange"; // Chick's legs
-            ctx.fillRect(chick.x + 5, chick.y + 30, 5, 10);
-            ctx.fillRect(chick.x + 15, chick.y + 30, 5, 10);
+        function restartGame() {
+            fencesContainer.innerHTML = "";
+            chick.style.left = "50px"; // Reset chick position
+            chick.style.bottom = "50px"; // Reset chick height
+            gameOverDiv.classList.add("hidden");
+            startGame();
         }
 
-        function updateChick() {
-            chick.velocityY += chick.gravity;
-            chick.y += chick.velocityY;
-
-            // Prevent chick from falling below the ground
-            if (chick.y + chick.height >= canvas.height) {
-                chick.y = canvas.height - chick.height;
-                chick.isJumping = false; // Reset jumping status
-            }
-        }
-
-        function drawFences() {
-            for (let fence of fences) {
-                ctx.fillStyle = "brown";
-                ctx.fillRect(fence.x, fence.y, 20, fence.height);
-            }
-        }
-
-        function updateFences() {
-            spawnCounter++;
-            if (spawnCounter > 80 + Math.random() * 50) {  // Closer spawn rate
-                let fenceHeight = 30; // Lower fence height for chick to jump over
-                fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
-                spawnCounter = 0;
-            }
-
-            for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= 3; // Move fence to the left
-                if (fences[i].x + 20 < 0) {
-                    fences.splice(i, 1);
-                    score++; // Increment score when fence passes
-                    document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
-                }
-            }
-        }
-
-        function checkCollision() {
-            for (let fence of fences) {
-                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && 
-                    chick.y + chick.height > fence.y) {
-                    isGameOver = true;
-                }
-            }
-        }
-
-        function showGameOver() {
-            canvas.style.display = 'none';
-            document.getElementById('gameOverScreen').style.display = 'block';
-            document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
-            highScore = Math.max(highScore, score);
-            document.getElementById('scoreboard').innerHTML = `High Score: ${highScore}`;
-        }
-
-        // Start and restart buttons
-        document.getElementById('startButton').onclick = startGame;
-        document.getElementById('restartButton').onclick = startGame;
-
-        // Chick jumping on canvas tap
-        canvas.addEventListener('click', () => {
-            if (!isGameOver && !chick.isJumping) {
-                chick.velocityY = -10;  // Jump only when the chick is on the ground
-                chick.isJumping = true; // Set jumping status to true
+        document.addEventListener("keydown", function(event) {
+            if (event.code === "Space" && !isJumping) {
+                isJumping = true;
+                chick.style.bottom = "150px"; // Jump height
+                setTimeout(() => {
+                    chick.style.bottom = "50px"; // Return to ground
+                    isJumping = false;
+                }, 500);
             }
         });
     </script>
