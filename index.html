@@ -17,16 +17,22 @@
         }
         #startScreen, #gameOverScreen, #shopScreen {
             text-align: center;
-            display: none; /* Hide all screens initially */
-        }
-        #startScreen {
-            display: flex; /* Show start screen by default */
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            width: 100%; /* Use full width */
         }
-        #startButton, #restartButton, #shopButton, .buyButton {
-            display: block;
+        #gameCanvas {
+            display: none; /* Hide canvas initially */
+            margin: 20px auto;
+            background: white;
+            border: 1px solid #333;
+            width: 800px; /* Fixed size for the game window */
+            height: 400px; /* Fixed size for the game window */
+        }
+        #startButton, #restartButton, #shopButton, .skinButton {
             margin: 20px auto;
             padding: 10px 20px;
             font-size: 18px;
@@ -36,41 +42,21 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        #startButton:hover, #restartButton:hover, #shopButton:hover, .buyButton:hover {
+        #startButton:hover, #restartButton:hover, #shopButton:hover, .skinButton:hover {
             background-color: #45a049;
         }
-        h1, h2 {
+        h1, h2, h3 {
             margin: 0;
             color: #333;
         }
         #scoreboard {
             font-size: 20px;
-            position: absolute;
-            top: 10px;
-            left: 10px;
+            display: none; /* Initially hide the scoreboard */
         }
-        #gameContainer {
-            position: relative;
-            width: 800px;
-            height: 400px;
-            border: 1px solid #333;
-            background: white;
-            overflow: hidden; /* Prevent overflow of fences */
-            display: none; /* Hide initially */
-        }
-        canvas {
-            display: block; /* Make the canvas a block element */
-            margin: 0 auto;
-        }
-        #shopScreen {
-            display: flex; /* Show shop screen */
-            flex-direction: column;
-            align-items: center;
-        }
-        .skin {
-            margin: 10px;
-            display: inline-block;
-            text-align: center;
+        #welcomeMessage {
+            margin: 20px 0;
+            font-size: 24px;
+            color: #333;
         }
     </style>
 </head>
@@ -78,44 +64,37 @@
     <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
+        <div id="welcomeMessage" style="display: none;"></div>
         <button id="startButton">Start Game</button>
-        <button id="shopButton">Shop</button>
+        <button id="shopButton" style="display: none;">Shop</button> <!-- Shop button -->
     </div>
 
-    <!-- Game Container -->
-    <div id="gameContainer">
-        <div id="scoreboard"></div>
-        <canvas id="gameCanvas" width="800" height="400"></canvas>
-    </div>
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
     
     <!-- Game Over Screen -->
-    <div id="gameOverScreen">
+    <div id="gameOverScreen" style="display: none;">
         <h2>Game Over</h2>
         <div id="finalScore"></div>  <!-- Display final score -->
         <div id="highScore"></div>    <!-- Display high score -->
         <button id="restartButton">Restart Game</button>
-        <button id="shopButton">Shop</button>
+        <button id="shopButton">Shop</button> <!-- Shop button -->
     </div>
 
     <!-- Shop Screen -->
-    <div id="shopScreen">
+    <div id="shopScreen" style="display: none;">
         <h2>Shop</h2>
-        <div id="skins"></div>
-        <button id="backToStartButton">Back to Start</button>
+        <div id="coinDisplay"></div> <!-- Display coins -->
+        <h3>Choose your skin:</h3>
+        <div id="skins"></div> <!-- Skin buttons will be added here -->
+        <button id="backToStart">Back to Start</button> <!-- Back button -->
     </div>
+
+    <div id="scoreboard"></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const gameContainer = document.getElementById('gameContainer');
-        const scoreboard = document.getElementById('scoreboard');
-        const startButton = document.getElementById('startButton');
-        const restartButton = document.getElementById('restartButton');
-        const shopButton = document.getElementById('shopButton');
-        const gameOverScreen = document.getElementById('gameOverScreen');
-        const shopScreen = document.getElementById('shopScreen');
-        const backToStartButton = document.getElementById('backToStartButton');
-        const skinsContainer = document.getElementById('skins');
 
         let chick = {
             x: 50,
@@ -125,37 +104,34 @@
             velocityY: 0,
             gravity: 0.5,
             isJumping: false,
-            jumpStrength: -10,
-            skinColor: 'yellow' // Default skin color
+            jumpStrength: -10 // Adjusted jump strength
         };
 
         let fences = [];
         let score = 0;
         let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
-        let coins = localStorage.getItem('coins') ? parseInt(localStorage.getItem('coins')) : 0;
+        let coins = localStorage.getItem('coins') ? parseInt(localStorage.getItem('coins')) : 0; // Load coins from localStorage
+        let username = localStorage.getItem('username') || ''; // Load username from localStorage
         let isGameOver = false;
         let spawnCounter = 0;
-        let scoredFences = new Set(); 
+        let scoredFences = new Set(); // Track fences that have been scored on
 
-        // Skins Data
-        const skins = [
-            { color: 'yellow', price: 0 }, // Default skin
-            { color: 'blue', price: 100 },
-            { color: 'green', price: 100 },
-            { color: 'orange', price: 100 },
-            { color: 'red', price: 100 },
-            { color: 'violet', price: 100 },
-            { color: 'black', price: 100 },
-            { color: 'pink', price: 100 },
-            { color: 'gray', price: 100 },
-            { color: 'white', price: 100 },
-            { color: 'brown', price: 100 }
-        ];
+        // Display welcome message if username exists
+        function showWelcomeMessage() {
+            if (username) {
+                document.getElementById('welcomeMessage').innerText = `Welcome back, ${username}!`;
+                document.getElementById('welcomeMessage').style.display = 'block';
+            } else {
+                document.getElementById('welcomeMessage').style.display = 'none';
+            }
+        }
 
         function startGame() {
             document.getElementById('startScreen').style.display = 'none'; // Hide the start screen
-            gameContainer.style.display = 'block'; // Show the game container
-            scoreboard.style.display = 'block'; // Show the scoreboard
+            document.getElementById('gameOverScreen').style.display = 'none'; // Hide the game over screen
+            document.getElementById('shopScreen').style.display = 'none'; // Hide the shop screen
+            canvas.style.display = 'block'; // Show the game canvas
+            document.getElementById('scoreboard').style.display = 'block'; // Show the scoreboard
 
             score = 0;
             isGameOver = false;
@@ -164,8 +140,8 @@
             chick.isJumping = false;
             fences = [];
             spawnCounter = 0;
-            scoredFences.clear(); 
-            scoreboard.innerHTML = `Score: ${score}`;
+            scoredFences.clear(); // Reset scored fences
+            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             gameLoop();
         }
 
@@ -184,24 +160,24 @@
         }
 
         function drawChick() {
-            ctx.fillStyle = chick.skinColor; 
+            ctx.fillStyle = "yellow"; // Chick's color (body)
             ctx.beginPath();
             ctx.ellipse(chick.x + 15, chick.y + 20, 15, 20, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            ctx.fillStyle = "orange"; 
+            ctx.fillStyle = "orange"; // Chick's beak
             ctx.beginPath();
             ctx.moveTo(chick.x + 25, chick.y + 10);
             ctx.lineTo(chick.x + 35, chick.y + 15);
             ctx.lineTo(chick.x + 25, chick.y + 20);
             ctx.fill();
 
-            ctx.fillStyle = "black"; 
+            ctx.fillStyle = "black"; // Chick's eye
             ctx.beginPath();
             ctx.arc(chick.x + 10, chick.y + 10, 2, 0, Math.PI * 2);
             ctx.fill();
 
-            ctx.fillStyle = "orange"; 
+            ctx.fillStyle = "orange"; // Chick's legs
             ctx.fillRect(chick.x + 5, chick.y + 30, 5, 10);
             ctx.fillRect(chick.x + 15, chick.y + 30, 5, 10);
         }
@@ -210,9 +186,10 @@
             chick.velocityY += chick.gravity;
             chick.y += chick.velocityY;
 
+            // Prevent chick from falling below the ground
             if (chick.y + chick.height >= canvas.height) {
                 chick.y = canvas.height - chick.height;
-                chick.isJumping = false; 
+                chick.isJumping = false; // Reset jumping status
             }
         }
 
@@ -226,13 +203,13 @@
         function updateFences() {
             spawnCounter++;
             if (spawnCounter > 80 + Math.random() * 50) {
-                let fenceHeight = Math.random() < 0.5 ? 30 : 40; 
+                let fenceHeight = Math.random() < 0.5 ? 30 : 40; // Randomize fence height between 30 and 40
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
                 spawnCounter = 0;
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= 3; 
+                fences[i].x -= 3; // Move fences towards the chick
                 if (fences[i].x + 20 < 0) {
                     fences.splice(i, 1);
                 }
@@ -243,12 +220,15 @@
             for (let fence of fences) {
                 if (chick.x + chick.width > fence.x && chick.x < fence.x + 20) {
                     if (chick.y + chick.height >= fence.y) {
-                        isGameOver = true; 
+                        isGameOver = true; // Collision detected
                     } else if (chick.y < fence.y) {
+                        // Increment score only if chick hops over the fence and hasn't already scored on it
                         if (!scoredFences.has(fence)) {
                             score++;
-                            scoreboard.innerHTML = `Score: ${score}`;
-                            scoredFences.add(fence); 
+                            coins++; // Increment coins for hopping over the fence
+                            localStorage.setItem('coins', coins); // Save coins to localStorage
+                            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+                            scoredFences.add(fence); // Mark this fence as scored on
                         }
                     }
                 }
@@ -256,80 +236,66 @@
         }
 
         function showGameOver() {
-            gameContainer.style.display = 'none';
-            gameOverScreen.style.display = 'block';
+            document.getElementById('gameOverScreen').style.display = 'flex'; // Show game over screen
             document.getElementById('finalScore').innerText = `Final Score: ${score}`;
             document.getElementById('highScore').innerText = `High Score: ${highScore}`;
-
             if (score > highScore) {
                 highScore = score;
-                localStorage.setItem('highScore', highScore);
+                localStorage.setItem('highScore', highScore); // Save high score to localStorage
             }
+            document.getElementById('scoreboard').style.display = 'none'; // Hide scoreboard
+            document.getElementById('shopButton').style.display = 'block'; // Show shop button
         }
 
-        function restartGame() {
-            gameOverScreen.style.display = 'none'; 
+        // Handle tapping on the screen to jump
+        canvas.addEventListener('click', function() {
+            if (!isGameOver && !chick.isJumping) {
+                chick.velocityY = chick.jumpStrength; // Set upward velocity to jump
+                chick.isJumping = true;
+            }
+        });
+
+        // Restart game button event
+        document.getElementById('restartButton').addEventListener('click', function() {
             startGame();
-        }
+        });
 
-        function showShop() {
-            startScreen.style.display = 'none'; 
-            gameOverScreen.style.display = 'none'; 
-            shopScreen.style.display = 'flex'; 
-            skinsContainer.innerHTML = ''; 
+        // Shop button event
+        document.getElementById('shopButton').addEventListener('click', function() {
+            document.getElementById('startScreen').style.display = 'none'; // Hide start screen
+            document.getElementById('gameOverScreen').style.display = 'none'; // Hide game over screen
+            document.getElementById('shopScreen').style.display = 'block'; // Show shop screen
+            document.getElementById('coinDisplay').innerText = `Coins: ${coins}`; // Show coins
 
-            skins.forEach((skin) => {
-                const skinDiv = document.createElement('div');
-                skinDiv.className = 'skin';
-                skinDiv.innerHTML = `
-                    <div style="background-color: ${skin.color}; width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px;"></div>
-                    <div>${skin.color.charAt(0).toUpperCase() + skin.color.slice(1)} Skin</div>
-                    <div>${skin.price} coins</div>
-                    <button class="buyButton" data-color="${skin.color}" data-price="${skin.price}">Buy</button>
-                `;
-                skinsContainer.appendChild(skinDiv);
+            // Display skin buttons
+            const skinColors = ['blue', 'green', 'orange', 'red', 'violet', 'black', 'pink', 'gray', 'white', 'brown'];
+            const skinsContainer = document.getElementById('skins');
+            skinsContainer.innerHTML = ''; // Clear previous skin buttons
+            skinColors.forEach(color => {
+                const button = document.createElement('button');
+                button.className = 'skinButton';
+                button.innerText = `${color.charAt(0).toUpperCase() + color.slice(1)} Skin - 100 coins`;
+                button.disabled = coins < 100; // Disable button if not enough coins
+                button.addEventListener('click', function() {
+                    coins -= 100; // Deduct coins for purchasing skin
+                    localStorage.setItem('coins', coins); // Save coins to localStorage
+                    document.getElementById('coinDisplay').innerText = `Coins: ${coins}`; // Update coin display
+                    alert(`You purchased the ${color} skin!`);
+                    // Here, you would change the chick's appearance
+                });
+                skinsContainer.appendChild(button);
             });
-        }
-
-        function buySkin(event) {
-            const button = event.target;
-            const skinColor = button.getAttribute('data-color');
-            const skinPrice = parseInt(button.getAttribute('data-price'));
-
-            if (coins >= skinPrice) {
-                coins -= skinPrice;
-                localStorage.setItem('coins', coins);
-                chick.skinColor = skinColor; 
-                alert(`You bought the ${skinColor.charAt(0).toUpperCase() + skinColor.slice(1)} skin!`);
-            } else {
-                alert('Not enough coins!');
-            }
-            updateCoinsDisplay();
-        }
-
-        function updateCoinsDisplay() {
-            document.getElementById('coinsDisplay').innerText = `Coins: ${coins}`;
-        }
-
-        // Event Listeners
-        startButton.addEventListener('click', startGame);
-        restartButton.addEventListener('click', restartGame);
-        shopButton.addEventListener('click', showShop);
-        backToStartButton.addEventListener('click', () => {
-            shopScreen.style.display = 'none';
-            startScreen.style.display = 'flex';
-        });
-        skinsContainer.addEventListener('click', (event) => {
-            if (event.target.classList.contains('buyButton')) {
-                buySkin(event);
-            }
         });
 
-        // Initialize
-        updateCoinsDisplay();
-        if (highScore > 0) {
-            document.getElementById('highScore').innerText = `High Score: ${highScore}`;
-        }
+        // Back to start button in shop
+        document.getElementById('backToStart').addEventListener('click', function() {
+            document.getElementById('shopScreen').style.display = 'none'; // Hide shop screen
+            document.getElementById('startScreen').style.display = 'flex'; // Show start screen
+            showWelcomeMessage(); // Show welcome message
+        });
+
+        // Show welcome message on start
+        showWelcomeMessage();
     </script>
 </body>
 </html>
