@@ -177,9 +177,9 @@
         }
 
         function updateFences() {
-            // Increase the distance between fences
-            if (Math.random() < 0.02) { // Adjust spawn rate as necessary
-                let fenceHeight = 30;
+            // Adjust fence spacing for better hopping experience
+            if (fences.length === 0 || fences[fences.length - 1].x < canvas.width - 250) { // Adjust this number for more/less distance
+                let fenceHeight = 30; // Height of the fence
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
             }
 
@@ -250,13 +250,12 @@
             document.getElementById('quote').innerHTML = quote;
         }
 
-        // Add immediate jump on touch/click
-        const jump = () => {
+        function jump() {
             if (!chick.isJumping) {
-                chick.velocityY = -10; // Adjust the jump height as needed
+                chick.velocityY = -10; // Jump height
                 chick.isJumping = true;
             }
-        };
+        }
 
         canvas.addEventListener('mousedown', jump);
         canvas.addEventListener('touchstart', (event) => {
