@@ -36,12 +36,17 @@
         h1, h2 {
             margin: 0;
         }
+        #leaderboard {
+            margin-top: 20px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
+        <div id="welcomeMessage" style="display: none;"></div> <!-- Welcome message -->
         <input id="usernameInput" type="text" placeholder="Enter Username" />
         <button id="startButton">Start Game</button>
     </div>
@@ -55,6 +60,7 @@
         <div id="finalScore"></div>
         <div id="quote"></div>
         <button id="restartButton">Restart Game</button>
+        <div id="leaderboard"></div>
     </div>
 
     <div id="scoreboard"></div>
@@ -79,12 +85,23 @@
         let isGameOver = false;
         let spawnCounter = 0;
         let username = '';
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 
         function startGame() {
-            username = document.getElementById('usernameInput').value;
+            username = localStorage.getItem('username'); // Get existing username from localStorage
+
             if (!username) {
-                alert('Please enter a username');
-                return;
+                username = document.getElementById('usernameInput').value;
+                if (!username) {
+                    alert('Please enter a username');
+                    return;
+                }
+                localStorage.setItem('username', username); // Save the new username
+            } else {
+                // Display welcome back message
+                document.getElementById('welcomeMessage').innerHTML = `Welcome back, ${username}!`;
+                document.getElementById('welcomeMessage').style.display = 'block'; // Show the welcome message
+                document.getElementById('usernameInput').style.display = 'none'; // Hide the username input
             }
 
             document.getElementById('startScreen').style.display = 'none';
@@ -190,9 +207,21 @@
             document.getElementById('gameOverScreen').style.display = 'block';
             document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
 
-            // Save to high score
+            // Save to leaderboard
             highScore = Math.max(highScore, score);
             document.getElementById('scoreboard').innerHTML = `High Score: ${highScore}`;
+            leaderboard.push({ username, score });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 10); // Keep only top 10
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+
+            // Display leaderboard
+            let leaderboardHTML = '<h3>Leaderboard</h3><ol>';
+            for (let entry of leaderboard) {
+                leaderboardHTML += `<li>${entry.username}: ${entry.score}</li>`;
+            }
+            leaderboardHTML += '</ol>';
+            document.getElementById('leaderboard').innerHTML = leaderboardHTML;
 
             // Display random quote based on score
             let quote;
@@ -237,15 +266,12 @@
             document.getElementById('quote').innerHTML = quote;
         }
 
-        canvas.addEventListener('click', () => {
-            if (!chick.isJumping) {
-                chick.velocityY = -10;
-                chick.isJumping = true;
-            }
-        });
-
         document.getElementById('startButton').addEventListener('click', startGame);
-        document.getElementById('restartButton').addEventListener('click', startGame);
+        document.getElementById('restartButton').addEventListener('click', () => {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('scoreboard').style.display = 'none';
+            startGame();
+        });
     </script>
 </body>
 </html>
