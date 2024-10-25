@@ -27,7 +27,6 @@
             background-color: #fff; /* White background */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             padding: 20px;
-            position: relative; /* To position elements inside */
         }
 
         #startPage {
@@ -55,6 +54,7 @@
             border: 1px solid #444;
             width: 100%; /* Full width of the container */
             height: 200px; /* Smaller height for game */
+            position: relative; /* For positioning score */
         }
 
         #score {
@@ -84,7 +84,7 @@
 
     <div id="gamePage" class="hidden">
         <canvas id="gameCanvas"></canvas>
-        <div id="score"></div>
+        <div id="score">Score: 0</div>
     </div>
 
     <div id="gameOverPage" class="hidden">
@@ -131,11 +131,51 @@
         }
 
         function startGame() {
-            startPage.style.display = 'none';
-            gamePage.style.display = 'flex';
             score = 0;
             scoreDisplay.innerText = `Score: ${score}`;
-            // Add your game logic here
+            startPage.style.display = 'none';
+            gamePage.style.display = 'flex';
+
+            // Initialize game variables and logic here
+            // Example logic for jumping and scoring
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let chickY = canvas.height - 30; // Ground level
+            let chickJumping = false;
+
+            canvas.addEventListener('click', () => {
+                if (!chickJumping) {
+                    chickJumping = true;
+                    jump();
+                }
+            });
+
+            function jump() {
+                let jumpHeight = 0;
+                const jumpInterval = setInterval(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+                    if (jumpHeight < 60) { // Jump height limit
+                        jumpHeight += 4;
+                        chickY -= 4;
+                    } else {
+                        jumpHeight = 0; // Reset jump height
+                        clearInterval(jumpInterval);
+                        chickJumping = false;
+                        chickY = canvas.height - 30; // Reset to ground level
+                    }
+                    drawChick();
+                }, 20);
+            }
+
+            function drawChick() {
+                ctx.fillStyle = 'yellow'; // Chick color
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, chickY, 15, 0, Math.PI * 2, true); // Draw chick
+                ctx.fill();
+            }
+            
+            // Add game logic for fences and scoring here
         }
 
         function showGameOver() {
