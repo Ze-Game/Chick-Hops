@@ -40,7 +40,7 @@ canvas {
   justify-content: center;
 }
 
-#finalScore {
+#finalScore, #highScore {
   font-size: 2rem;
   margin-top: 20px;
 }
