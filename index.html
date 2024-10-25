@@ -9,6 +9,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            font-family: Arial, sans-serif;
         }
         canvas {
             display: block;
@@ -33,13 +34,8 @@
             font-size: 20px; 
             display: none;
         }
-        h1 {
+        h1, h2 {
             margin: 0;
-            font-size: 36px; /* Game title size */
-        }
-        h2 {
-            margin: 0;
-            font-size: 24px; /* Welcome back message size */
         }
     </style>
 </head>
@@ -53,7 +49,6 @@
 
     <!-- Welcome Back Message -->
     <div id="welcomeBack" style="display: none;">
-        <h1>Chick Hops</h1> <!-- Title retained -->
         <h2>Welcome Back, <span id="welcomeUsername"></span>!</h2>
         <button id="startGameButton">Start Game</button>
     </div>
@@ -182,13 +177,14 @@
         }
 
         function updateFences() {
+            // Increase the distance between fences
             if (Math.random() < 0.02) { // Adjust spawn rate as necessary
                 let fenceHeight = 30;
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= 3;
+                fences[i].x -= 3; // Speed at which fences move
                 if (fences[i].x + 20 < 0) {
                     fences.splice(i, 1);
                     score++;
@@ -254,11 +250,18 @@
             document.getElementById('quote').innerHTML = quote;
         }
 
-        canvas.addEventListener('click', () => {
+        // Add immediate jump on touch/click
+        const jump = () => {
             if (!chick.isJumping) {
-                chick.velocityY = -10;
+                chick.velocityY = -10; // Adjust the jump height as needed
                 chick.isJumping = true;
             }
+        };
+
+        canvas.addEventListener('mousedown', jump);
+        canvas.addEventListener('touchstart', (event) => {
+            event.preventDefault(); // Prevent scrolling on touch
+            jump();
         });
 
         document.getElementById('restartButton').addEventListener('click', startGame);
