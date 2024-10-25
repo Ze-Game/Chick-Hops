@@ -1,11 +1,32 @@
+let username = localStorage.getItem('username');
+let highScore = parseInt(localStorage.getItem('highScore')) || 0;
+let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+
+// Prompt user for a username only if it's not already set
+if (!username) {
+    username = prompt("Enter your username:");
+    if (username) {
+        localStorage.setItem('username', username);
+    } else {
+        // If no username is provided, give a default name
+        username = "Player";
+        localStorage.setItem('username', username);
+    }
+}
+
 function showGameOver() {
     canvas.style.display = 'none';
     document.getElementById('gameOverScreen').style.display = 'block';
     document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
 
+    // Update high score if current score is higher
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('highScore', highScore);
+    }
+
     // Update leaderboard
     let existingEntry = leaderboard.find(entry => entry.username === username);
-
     if (existingEntry) {
         // Update the score only if the new score is higher
         if (score > existingEntry.score) {
@@ -70,4 +91,15 @@ function showGameOver() {
         quote = positiveQuotes[Math.floor(Math.random() * positiveQuotes.length)];
     }
     document.getElementById('quote').innerHTML = quote;
-          }
+}
+
+canvas.addEventListener('click', () => {
+    if (!chick.isJumping) {
+        chick.velocityY = -10;
+        chick.isJumping = true;
+    }
+});
+
+document.getElementById('startButton').addEventListener('click', startGame);
+document.getElementById('restartButton').addEventListener('click', startGame);
+                        
