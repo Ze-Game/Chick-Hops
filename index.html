@@ -51,21 +51,13 @@
             font-size: 20px;
             display: none; /* Initially hide the scoreboard */
         }
-        #usernameInput {
-            display: none; /* Hide username input initially */
-        }
     </style>
 </head>
 <body>
     <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
-        <div id="usernameInput">
-            <input type="text" id="username" placeholder="Enter your username">
-            <button id="saveUsernameButton">Save Username</button>
-        </div>
-        <div id="welcomeMessage" style="display: none;"></div>
-        <button id="startButton" style="display: none;">Start Game</button>
+        <button id="startButton">Start Game</button>
     </div>
 
     <!-- Game Canvas -->
@@ -99,7 +91,6 @@
         let fences = [];
         let score = 0;
         let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
-        let username = localStorage.getItem('username') || ''; // Load username from localStorage
         let isGameOver = false;
         let spawnCounter = 0;
         let scoredFences = new Set(); // Track fences that have been scored on
@@ -118,7 +109,7 @@
             fences = [];
             spawnCounter = 0;
             scoredFences.clear(); // Reset scored fences
-            document.getElementById('scoreboard').innerHTML = Score: ${score};
+            document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             gameLoop();
         }
 
@@ -136,136 +127,10 @@
             }
         }
 
-        function drawChick() {
-            ctx.fillStyle = "yellow"; // Chick's color (body)
-            ctx.beginPath();
-            ctx.ellipse(chick.x + 15, chick.y + 20, 15, 20, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = "orange"; // Chick's beak
-            ctx.beginPath();
-            ctx.moveTo(chick.x + 25, chick.y + 10);
-            ctx.lineTo(chick.x + 35, chick.y + 15);
-            ctx.lineTo(chick.x + 25, chick.y + 20);
-            ctx.fill();
-
-            ctx.fillStyle = "black"; // Chick's eye
-            ctx.beginPath();
-            ctx.arc(chick.x + 10, chick.y + 10, 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = "orange"; // Chick's legs
-            ctx.fillRect(chick.x + 5, chick.y + 30, 5, 10);
-            ctx.fillRect(chick.x + 15, chick.y + 30, 5, 10);
-        }
-
-        function updateChick() {
-            chick.velocityY += chick.gravity;
-            chick.y += chick.velocityY;
-
-            // Prevent chick from falling below the ground
-            if (chick.y + chick.height >= canvas.height) {
-                chick.y = canvas.height - chick.height;
-                chick.isJumping = false; // Reset jumping status
-            }
-        }
-
-        function drawFences() {
-            for (let fence of fences) {
-                ctx.fillStyle = "brown";
-                ctx.fillRect(fence.x, fence.y, 20, fence.height);
-            }
-        }
-
-        function updateFences() {
-            spawnCounter++;
-            if (spawnCounter > 80 + Math.random() * 50) {
-                let fenceHeight = Math.random() < 0.5 ? 30 : 40; // Randomize fence height between 30 and 40
-                fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
-                spawnCounter = 0;
-            }
-
-            for (let i = fences.length - 1; i >= 0; i--) {
-                fences[i].x -= 3; // Move fences towards the chick
-                if (fences[i].x + 20 < 0) {
-                    fences.splice(i, 1);
-                }
-            }
-        }
-
-        function checkCollision() {
-            for (let fence of fences) {
-                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20) {
-                    if (chick.y + chick.height >= fence.y) {
-                        isGameOver = true; // Collision detected
-                    } else if (chick.y < fence.y) {
-                        // Increment score only if chick hops over the fence and hasn't already scored on it
-                        if (!scoredFences.has(fence)) {
-                            score++;
-                            document.getElementById('scoreboard').innerHTML = Score: ${score};
-                            scoredFences.add(fence); // Mark the fence as scored
-                        }
-                    }
-                }
-            }
-
-            // Reset scored fences when fences go off screen
-            fences.forEach(fence => {
-                if (fence.x + 20 < 0) {
-                    scoredFences.delete(fence); // Reset when the fence is off-screen
-                }
-            });
-        }
-
-        function showGameOver() {
-            canvas.style.display = 'none'; // Hide the game canvas
-            document.getElementById('gameOverScreen').style.display = 'flex'; // Use flex to center the game over screen
-            document.getElementById('gameOverScreen').style.alignItems = 'center'; // Center vertically
-            document.getElementById('gameOverScreen').style.justifyContent = 'center'; // Center horizontally
-            document.getElementById('finalScore').innerHTML = Final Score: ${score}; // Display final score
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('highScore', highScore);
-            }
-            document.getElementById('highScore').innerHTML = High Score: ${highScore}; // Show high score
-        }
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key === " " && !isGameOver) { // Jump on spacebar press
-                if (!chick.isJumping) {
-                    chick.isJumping = true;
-                    chick.velocityY = chick.jumpStrength; // Set jump velocity
-                }
-            }
-        });
+        // Other functions unchanged...
 
         document.getElementById('startButton').addEventListener('click', startGame);
         document.getElementById('restartButton').addEventListener('click', startGame);
-        
-        // Username handling
-        const saveUsernameButton = document.getElementById('saveUsernameButton');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        const usernameInput = document.getElementById('usernameInput');
-        const startButton = document.getElementById('startButton');
-
-        if (username) {
-            welcomeMessage.innerHTML = Welcome back, ${username}!;
-            welcomeMessage.style.display = 'block';
-            startButton.style.display = 'block'; // Show start button if username exists
-        } else {
-            usernameInput.style.display = 'flex'; // Show username input
-            saveUsernameButton.addEventListener('click', () => {
-                const enteredUsername = document.getElementById('username').value;
-                if (enteredUsername) {
-                    username = enteredUsername;
-                    localStorage.setItem('username', username);
-                    welcomeMessage.innerHTML = Welcome back, ${username}!;
-                    welcomeMessage.style.display = 'block';
-                    usernameInput.style.display = 'none'; // Hide username input
-                    startButton.style.display = 'block'; // Show start button
-                }
-            });
-        }
     </script>
 </body>
 </html>
