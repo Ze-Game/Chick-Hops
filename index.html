@@ -141,7 +141,7 @@
 
         function updateFences() {
             spawnCounter++;
-            if (spawnCounter > 150 + Math.random() * 100) {  // Adjusted spawn rate
+            if (spawnCounter > 100 + Math.random() * 50) {  // Adjusted spawn rate to bring fences closer
                 let fenceHeight = 30; // Fence height for chick to jump over
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
                 spawnCounter = 0;
