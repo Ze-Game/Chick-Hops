@@ -45,7 +45,7 @@ function startGame() {
 function initGame() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const chick = { x: 50, y: canvas.height - 30, width: 30, height: 30, color: 'yellow' }; // Chick properties
+    const chick = { x: 50, y: canvas.height - 40, width: 30, height: 30, color: 'yellow' }; // Chick properties
     const fences = []; // Array to hold fences
     gameInterval = setInterval(() => updateGame(ctx, chick, fences), 20); // Update game every 20ms
 
@@ -135,5 +135,4 @@ function restartGame() {
     coins = parseInt(localStorage.getItem('coins')) || 0;
     fenceSpeed = 2;
     window.location.href = 'game.html'; // Restart the game
-                               }
-                
+        }
