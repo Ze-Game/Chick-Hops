@@ -75,6 +75,7 @@
         let score = 0;
         let highScore = 0;
         let isGameOver = false;
+        let spawnCounter = 0;
 
         function startGame() {
             document.getElementById('startScreen').style.display = 'none';
@@ -88,6 +89,7 @@
             chick.velocityY = 0;
             chick.isJumping = false;
             fences = [];
+            spawnCounter = 0;
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             gameLoop();
         }
@@ -138,9 +140,11 @@
         }
 
         function updateFences() {
-            if (Math.random() < 0.02) {
-                let fenceHeight = 40; // Lowered fence height
+            spawnCounter++;
+            if (spawnCounter > 100 + Math.random() * 100) {
+                let fenceHeight = 30; // Lowered fence height for chick to jump over
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
+                spawnCounter = 0;
             }
 
             for (let i = fences.length - 1; i >= 0; i--) {
