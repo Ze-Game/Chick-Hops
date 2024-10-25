@@ -11,15 +11,14 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
+            background-color: #f0f8ff;
             font-family: Arial, sans-serif;
-            background-color: #e0f7fa; /* Light background for appeal */
         }
         canvas {
             display: block;
             margin: 20px auto;
             background: white;
-            border: 1px solid black;
+            border: 1px solid #333;
         }
         #startScreen, #gameOverScreen {
             text-align: center;
@@ -33,22 +32,25 @@
             margin: 20px auto;
             padding: 10px 20px;
             font-size: 18px;
-            background-color: #ffeb3b; /* Button color */
+            background-color: #4CAF50;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
-        #gameOverScreen, #gameCanvas {
-            display: none;
+        #startButton:hover, #restartButton:hover {
+            background-color: #45a049;
         }
-        #scoreboard {
-            text-align: center; 
-            font-size: 20px; 
+        #gameOverScreen {
             display: none;
         }
         h1, h2 {
             margin: 0;
-            color: #37474f; /* Text color */
+            color: #333;
+        }
+        #scoreboard {
+            font-size: 20px;
+            display: none;
         }
     </style>
 </head>
@@ -66,7 +68,7 @@
     <div id="gameOverScreen">
         <h2>Game Over</h2>
         <div id="finalScore"></div>
-        <div id="highScoreDisplay"></div>
+        <div id="highScore"></div>
         <button id="restartButton">Restart Game</button>
     </div>
 
@@ -178,24 +180,6 @@
                     fences.splice(i, 1);
                 }
             }
-
-            // Adjust speed and height of fences based on score
-            if (score >= 30) {
-                for (let fence of fences) {
-                    fence.x -= 0.5; // Slightly increase speed
-                }
-            }
-            if (score >= 60) {
-                for (let fence of fences) {
-                    fence.x -= 0.5; // Increase speed further
-                }
-            }
-            if (score >= 100) {
-                // Make the fences change height
-                fences.forEach(fence => {
-                    fence.height = 20 + Math.sin(score / 20) * 10; // Change height based on score
-                });
-            }
         }
 
         function checkCollision() {
@@ -211,21 +195,17 @@
             canvas.style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'block';
             document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
-            document.getElementById('highScoreDisplay').innerHTML = `High Score: ${highScore}`;
-
-            // Save to high score
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('highScore', highScore);
             }
+            document.getElementById('highScore').innerHTML = `High Score: ${highScore}`;
         }
 
         canvas.addEventListener('click', () => {
             if (!chick.isJumping) {
                 chick.velocityY = -10;
                 chick.isJumping = true;
-                score++; // Increase score when jumping over fences
-                document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             }
         });
 
