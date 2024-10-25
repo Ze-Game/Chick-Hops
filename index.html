@@ -10,12 +10,21 @@
             flex-direction: column;
             align-items: center;
             font-family: Arial, sans-serif;
+            background-color: #87CEFA; /* Light sky blue background */
+            color: #333; /* Dark text for contrast */
+        }
+        h1 {
+            font-size: 48px; /* Larger title font */
+            color: #FF4500; /* Bright orange for title */
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow for depth */
         }
         canvas {
             display: block;
             margin: 20px auto;
             background: white;
-            border: 1px solid black;
+            border: 2px solid #333; /* Thicker border for canvas */
+            border-radius: 10px; /* Rounded corners for canvas */
         }
         #startScreen, #gameOverScreen, #welcomeBack {
             text-align: center;
@@ -25,6 +34,14 @@
             margin: 20px auto;
             padding: 10px 20px;
             font-size: 18px;
+            background-color: #FF6347; /* Tomato color for buttons */
+            color: white; /* White text for buttons */
+            border: none;
+            border-radius: 5px; /* Rounded corners for buttons */
+            cursor: pointer;
+        }
+        #startButton:hover, #restartButton:hover, #startGameButton:hover {
+            background-color: #FF4500; /* Darker shade on hover */
         }
         #gameOverScreen, #gameCanvas {
             display: none;
@@ -34,7 +51,7 @@
             font-size: 20px; 
             display: none;
         }
-        h1, h2 {
+        h2 {
             margin: 0;
         }
     </style>
@@ -235,7 +252,7 @@
             } else {
                 const positiveQuotes = [
                     "Amazing!",
-                    "I can't believe you managed to get here?",
+                    "I can't believe you manage to get here!",
                     "Outstanding!",
                     "You made the chick so proud.",
                     "You're Awesome!",
