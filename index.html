@@ -16,35 +16,45 @@
             background: white;
             border: 1px solid black;
         }
+        #startScreen, #gameOverScreen {
+            text-align: center;
+        }
         #startButton, #restartButton {
             display: block;
             margin: 20px auto;
             padding: 10px 20px;
             font-size: 18px;
         }
-        #gameOverScreen, #startScreen {
+        #gameOverScreen, #gameCanvas {
             display: none;
-            text-align: center;
-            font-size: 24px;
         }
         #scoreboard {
             text-align: center; 
-            font-size: 24px; 
+            font-size: 20px; 
             display: none;
+        }
+        h1, h2 {
+            margin: 0;
         }
     </style>
 </head>
 <body>
+    <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
         <button id="startButton">Start Game</button>
     </div>
-    <canvas id="gameCanvas" width="800" height="400" style="display:none;"></canvas>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    
+    <!-- Game Over Screen -->
     <div id="gameOverScreen">
         <h2>Game Over</h2>
         <div id="finalScore"></div>
         <button id="restartButton">Restart Game</button>
     </div>
+
     <div id="scoreboard"></div>
 
     <script>
@@ -79,7 +89,6 @@
             chick.isJumping = false;
             fences = [];
             document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
-            document.getElementById('restartButton').style.display = 'none';
             gameLoop();
         }
 
@@ -158,7 +167,7 @@
             document.getElementById('gameOverScreen').style.display = 'block';
             document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
             highScore = Math.max(highScore, score);
-            document.getElementById('scoreboard').innerHTML += ` <br> High Score: ${highScore}`;
+            document.getElementById('scoreboard').innerHTML = `High Score: ${highScore}`;
         }
 
         // Start and restart buttons
