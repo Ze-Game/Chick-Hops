@@ -185,7 +185,7 @@
             for (let i = fences.length - 1; i >= 0; i--) {
                 const fence = fences[i];
                 if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && chick.y + chick.height > fence.y) {
-                    isGameOver = true;
+                    isGameOver = true; // Collision detected
                 } else if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && chick.y < fence.y) {
                     // Increment score only if chick hops over the fence
                     score++;
