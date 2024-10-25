@@ -50,20 +50,12 @@
             margin: 0;
             color: #37474f; /* Text color */
         }
-        #usernameInput {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
     <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
-        <input id="usernameInput" type="text" placeholder="Enter Username" />
         <button id="startButton">Start Game</button>
     </div>
 
@@ -74,7 +66,7 @@
     <div id="gameOverScreen">
         <h2>Game Over</h2>
         <div id="finalScore"></div>
-        <div id="quote"></div>
+        <div id="highScoreDisplay"></div>
         <button id="restartButton">Restart Game</button>
     </div>
 
@@ -99,17 +91,8 @@
         let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
         let isGameOver = false;
         let spawnCounter = 0;
-        let username = localStorage.getItem('username') || '';
 
         function startGame() {
-            username = document.getElementById('usernameInput').value;
-            if (!username) {
-                alert('Please enter a username');
-                return;
-            }
-
-            localStorage.setItem('username', username);
-            document.getElementById('usernameInput').style.display = 'none'; // Hide username box
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'none';
             canvas.style.display = 'block';
@@ -228,33 +211,26 @@
             canvas.style.display = 'none';
             document.getElementById('gameOverScreen').style.display = 'block';
             document.getElementById('finalScore').innerHTML = `Final Score: ${score}`;
+            document.getElementById('highScoreDisplay').innerHTML = `High Score: ${highScore}`;
 
             // Save to high score
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('highScore', highScore);
             }
-            document.getElementById('scoreboard').innerHTML = `High Score: ${highScore}`;
         }
 
         canvas.addEventListener('click', () => {
             if (!chick.isJumping) {
                 chick.velocityY = -10;
                 chick.isJumping = true;
+                score++; // Increase score when jumping over fences
+                document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
             }
         });
 
         document.getElementById('startButton').addEventListener('click', startGame);
         document.getElementById('restartButton').addEventListener('click', startGame);
-
-        // Check for existing username
-        if (username) {
-            document.getElementById('usernameInput').style.display = 'none'; // Hide username box
-            document.getElementById('startScreen').style.display = 'none'; // Hide start screen
-            canvas.style.display = 'block'; // Show game canvas
-            document.getElementById('scoreboard').style.display = 'block'; // Show scoreboard
-            startGame(); // Start the game
-        }
     </script>
 </body>
 </html>
