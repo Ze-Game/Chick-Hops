@@ -243,7 +243,9 @@
             if (score > 100) {
                 // Change height of fence for difficulty
                 fenceHeight = fenceHeight === 30 ? 50 : 30; // toggle between 30 and 50
-                fenceYPosition = canvas.height - fenceHeight; // update Y position
+                for (let fence of fences) {
+                    fence.height = fenceHeight;
+                }
             }
         }
 
@@ -297,7 +299,7 @@
         if (username) {
             document.getElementById('welcomeBack').innerText = `Welcome back, ${username}!`;
             document.getElementById('welcomeBack').classList.remove('hidden');
-            document.getElementById('usernameInput').classList.add('hidden');
+            document.getElementById('usernameInput').classList.add('hidden'); // Hide username input if exists
             document.getElementById('startButton').classList.remove('hidden');
         } else {
             document.getElementById('usernameInput').classList.remove('hidden');
