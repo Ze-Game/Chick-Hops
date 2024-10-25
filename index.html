@@ -169,7 +169,7 @@
         function updateFences() {
             spawnCounter++;
             if (spawnCounter > 80 + Math.random() * 50) {
-                let fenceHeight = Math.random() > 0.5 ? 30 : 60; // Random height for fences
+                let fenceHeight = 30; // Set fixed height for fences
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
                 spawnCounter = 0;
             }
