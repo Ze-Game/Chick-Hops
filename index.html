@@ -7,278 +7,149 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
+            background-color: #d0e8f2; /* Light blue background */
         }
-        #startScreen, #shopScreen, #gameOverScreen {
+
+        #startPage, #gamePage, #gameOverPage, #shopPage {
             display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 300px; /* Smaller width */
+            height: 400px; /* Smaller height */
+            border: 2px solid #444;
+            border-radius: 10px;
+            background-color: #fff; /* White background */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            position: relative; /* To position elements inside */
+        }
+
+        #startPage {
+            display: flex; /* Center items */
+        }
+
+        h1, h2 {
             text-align: center;
-            width: 300px;  /* Smaller width for centered window */
-            height: 250px; /* Smaller height for centered window */
-            background-color: #e0ffe0;
-            border: 2px solid #000;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            position: absolute;
+            margin: 10px 0;
         }
-        #gameWindow {
-            display: none;
-            position: relative;
-            width: 300px; /* Fixed width for game window */
-            height: 250px; /* Fixed height for game window */
-            background-color: #e0ffe0;
-            overflow: hidden;
-            border: 2px solid #000;
-            border-radius: 10px;
-            position: absolute;
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50; /* Green */
+            color: white;
         }
-        #chick {
-            position: absolute;
-            bottom: 50px; /* Position the chick on the ground */
-            left: 20px; /* Position from the left */
-            width: 50px;
-            height: 50px;
-            background-image: url('https://example.com/chick.png'); /* Replace with your chick image */
-            background-size: cover;
+
+        #gameCanvas {
+            background-color: #f0f0f0;
+            border: 1px solid #444;
+            width: 100%; /* Full width of the container */
+            height: 200px; /* Smaller height for game */
         }
-        .fence {
-            position: absolute;
-            bottom: 0;
-            width: 50px;
-            height: 40px; /* Height of the fence for easier jumping */
-            background-color: brown; /* Fence appearance */
-        }
-        #scoreboard {
+
+        #score {
             position: absolute;
             top: 10px;
             left: 10px;
             font-size: 20px;
-            color: #000;
+            color: #333;
         }
-        button {
-            margin-top: 10px;
-            padding: 5px 10px;
-            font-size: 16px;
-            cursor: pointer;
+
+        #gameOverPage {
+            display: flex;
         }
-        #welcomeMessage {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: #007bff;
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="startScreen">
+    <div id="startPage">
         <h1>Chick Hops</h1>
-        <div id="welcomeMessage"></div>
-        <button id="startButton">Start Game</button>
+        <h2 id="welcomeBack"></h2>
+        <button id="startButton">Start</button>
         <button id="shopButton">Shop</button>
     </div>
 
-    <div id="gameWindow">
-        <div id="chick"></div>
-        <div id="scoreboard">Score: 0</div>
+    <div id="gamePage" class="hidden">
+        <canvas id="gameCanvas"></canvas>
+        <div id="score"></div>
     </div>
 
-    <div id="gameOverScreen">
+    <div id="gameOverPage" class="hidden">
         <h2>Game Over</h2>
         <div id="finalScore"></div>
         <div id="highScore"></div>
         <button id="restartButton">Restart</button>
-        <button id="shopButtonGameOver">Shop</button>
+        <button id="shopButtonOver">Shop</button>
     </div>
 
-    <div id="shopScreen">
+    <div id="shopPage" class="hidden">
         <h2>Shop</h2>
-        <div id="coinDisplay"></div>
         <div id="skins"></div>
-        <button id="backToStart">Back to Start</button>
+        <button id="backToStartButton">Back</button>
     </div>
 
     <script>
-        const gameWindow = document.getElementById('gameWindow');
-        const chick = document.getElementById('chick');
-        const scoreboard = document.getElementById('scoreboard');
-        const gameOverScreen = document.getElementById('gameOverScreen');
-        const finalScore = document.getElementById('finalScore');
+        let userName = localStorage.getItem('username');
+        const startButton = document.getElementById('startButton');
+        const welcomeBack = document.getElementById('welcomeBack');
+        const startPage = document.getElementById('startPage');
+        const gamePage = document.getElementById('gamePage');
+        const gameOverPage = document.getElementById('gameOverPage');
+        const shopPage = document.getElementById('shopPage');
+        const scoreDisplay = document.getElementById('score');
+        const finalScoreDisplay = document.getElementById('finalScore');
         const highScoreDisplay = document.getElementById('highScore');
-        const shopScreen = document.getElementById('shopScreen');
-        const coinDisplay = document.getElementById('coinDisplay');
-        const skinsContainer = document.getElementById('skins');
-        const welcomeMessage = document.getElementById('welcomeMessage');
 
-        let isGameOver = false;
         let score = 0;
         let highScore = localStorage.getItem('highScore') || 0;
-        let coins = localStorage.getItem('coins') || 0;
-        let username = localStorage.getItem('username') || '';
-        let fenceSpeed = 5; // Initial speed of the fence
-        let fenceInterval;
 
-        document.getElementById('startButton').addEventListener('click', startGame);
-        document.getElementById('restartButton').addEventListener('click', restartGame);
-        document.getElementById('shopButton').addEventListener('click', showShop);
-        document.getElementById('shopButtonGameOver').addEventListener('click', showShop);
-        document.getElementById('backToStart').addEventListener('click', showStartScreen);
-
-        // Show the starting screen on page load
-        showStartScreen();
-
-        function showStartScreen() {
-            resetGame();
-            document.getElementById('startScreen').style.display = 'block';
-            gameWindow.style.display = 'none';
-            gameOverScreen.style.display = 'none';
-            shopScreen.style.display = 'none';
-
-            // Check for username and update welcome message
-            if (username) {
-                welcomeMessage.innerText = `Welcome back, ${username}!`;
-            } else {
-                welcomeMessage.innerText = 'Enter your username:';
-                const usernameInput = document.createElement('input');
-                usernameInput.type = 'text';
-                usernameInput.placeholder = 'Username';
-                usernameInput.addEventListener('change', function() {
-                    username = usernameInput.value;
-                    localStorage.setItem('username', username); // Save username to localStorage
-                    welcomeMessage.innerText = `Welcome back, ${username}!`;
-                    usernameInput.remove(); // Remove input after entering
-                });
-                document.getElementById('startScreen').appendChild(usernameInput);
-            }
+        // Initialize pages
+        if (userName) {
+            welcomeBack.innerText = `Welcome back, ${userName}!`;
+        } else {
+            welcomeBack.innerText = "";
         }
 
-        function showShop() {
-            gameOverScreen.style.display = 'none';
-            document.getElementById('startScreen').style.display = 'none';
-            shopScreen.style.display = 'block';
-            coinDisplay.innerText = `Coins: ${coins}`;
-            displaySkinButtons();
-        }
-
-        function displaySkinButtons() {
-            const skinColors = ['blue', 'green', 'orange', 'red', 'violet', 'black', 'pink', 'gray', 'white', 'brown'];
-            skinsContainer.innerHTML = ''; // Clear previous skin buttons
-            skinColors.forEach(color => {
-                const button = document.createElement('button');
-                button.innerText = `${color.charAt(0).toUpperCase() + color.slice(1)} Skin - 100 coins`;
-                button.disabled = coins < 100; // Disable button if not enough coins
-                button.addEventListener('click', function() {
-                    if (coins >= 100) {
-                        coins -= 100; // Deduct coins for purchasing skin
-                        localStorage.setItem('coins', coins); // Save coins to localStorage
-                        coinDisplay.innerText = `Coins: ${coins}`; // Update coin display
-                        alert(`You purchased the ${color} skin!`);
-                    }
-                });
-                skinsContainer.appendChild(button);
-            });
+        function showStartPage() {
+            startPage.style.display = 'flex';
+            gamePage.style.display = 'none';
+            gameOverPage.style.display = 'none';
+            shopPage.style.display = 'none';
         }
 
         function startGame() {
+            startPage.style.display = 'none';
+            gamePage.style.display = 'flex';
             score = 0;
-            isGameOver = false;
-            document.getElementById('startScreen').style.display = 'none';
-            gameOverScreen.style.display = 'none';
-            gameWindow.style.display = 'block';
-            scoreboard.style.display = 'block';
-            chick.style.bottom = '50px'; // Reset chick position
-            scoreboard.innerText = `Score: ${score}`;
-            fenceSpeed = 5; // Reset fence speed
-            createFences();
-
-            // Jump on screen tap
-            gameWindow.addEventListener('click', jump);
+            scoreDisplay.innerText = `Score: ${score}`;
+            // Add your game logic here
         }
 
-        function restartGame() {
-            startGame();
-        }
-
-        function jump() {
-            if (isGameOver) return;
-            let jumpHeight = 100; // Height of the jump
-            chick.style.transition = 'bottom 0.5s'; // Jump duration
-            chick.style.bottom = `${parseInt(chick.style.bottom) + jumpHeight}px`; // Move up
-
-            setTimeout(() => {
-                chick.style.bottom = '50px'; // Go back down
-                checkCollision(); // Check for collision after jumping
-            }, 500);
-        }
-
-        function createFences() {
-            let fenceCount = 0; // Initialize fence count
-            fenceInterval = setInterval(() => {
-                if (isGameOver) return;
-
-                let fence = document.createElement('div');
-                fence.className = 'fence';
-                fence.style.left = `${400}px`; // Start position off-screen
-                gameWindow.appendChild(fence);
-
-                moveFence(fence);
-
-                fenceCount++; // Increment fence count
-                if (fenceCount % 10 === 0) {
-                    fenceSpeed += 2; // Increase speed every 10 fences
-                }
-            }, 1500); // New fence every 1.5 seconds
-        }
-
-        function moveFence(fence) {
-            let fencePosition = 400; // Start position
-            let moveInterval = setInterval(() => {
-                if (isGameOver) {
-                    clearInterval(moveInterval);
-                    return;
-                }
-                fencePosition -= fenceSpeed; // Move fence left
-                fence.style.left = `${fencePosition}px`;
-
-                // Check for collision
-                if (fencePosition < 100 && fencePosition > 50 && parseInt(chick.style.bottom) <= 90) {
-                    gameOver();
-                }
-
-                // Remove fence if it goes off-screen
-                if (fencePosition < -50) {
-                    clearInterval(moveInterval);
-                    gameWindow.removeChild(fence);
-                    score++;
-                    scoreboard.innerText = `Score: ${score}`;
-                }
-            }, 20);
-        }
-
-        function checkCollision() {
-            const fences = document.getElementsByClassName('fence');
-            for (let fence of fences) {
-                let fencePosition = parseInt(fence.style.left);
-                if (fencePosition < 100 && fencePosition > 50 && parseInt(chick.style.bottom) <= 90) {
-                    gameOver();
-                }
-            }
-        }
-
-        function gameOver() {
-            isGameOver = true;
-            clearInterval(fenceInterval);
-            finalScore.innerText = `Final Score: ${score}`;
-            coins = score; // Convert score to coins
-            localStorage.setItem('coins', coins); // Save coins
+        function showGameOver() {
+            gamePage.style.display = 'none';
+            gameOverPage.style.display = 'flex';
+            finalScoreDisplay.innerText = `Final Score: ${score}`;
             highScore = Math.max(score, highScore);
-            localStorage.setItem('highScore', highScore); // Save high score
+            localStorage.setItem('highScore', highScore);
             highScoreDisplay.innerText = `High Score: ${highScore}`;
-            gameWindow.style.display = 'none';
-            gameOverScreen.style.display = 'block';
         }
+
+        startButton.addEventListener('click', startGame);
+        // Other button event listeners can be added here
+        window.onload = showStartPage; // Show start page on load
     </script>
 </body>
 </html>
