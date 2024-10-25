@@ -15,7 +15,7 @@
             font-family: Arial, sans-serif;
         }
         canvas {
-            display: block;
+            display: none; /* Hide canvas initially */
             margin: 20px auto;
             background: white;
             border: 1px solid #333;
@@ -26,6 +26,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            height: 100vh; /* Ensure it takes full height */
         }
         #startButton, #restartButton {
             display: block;
@@ -41,16 +42,13 @@
         #startButton:hover, #restartButton:hover {
             background-color: #45a049;
         }
-        #gameOverScreen {
-            display: none;
-        }
         h1, h2 {
             margin: 0;
             color: #333;
         }
         #scoreboard {
             font-size: 20px;
-            display: none;
+            display: none; /* Initially hide the scoreboard */
         }
     </style>
 </head>
@@ -86,6 +84,7 @@
             velocityY: 0,
             gravity: 0.5,
             isJumping: false,
+            jumpStrength: -10 // Adjusted jump strength
         };
 
         let fences = [];
@@ -169,7 +168,7 @@
         function updateFences() {
             spawnCounter++;
             if (spawnCounter > 80 + Math.random() * 50) {
-                let fenceHeight = 30;
+                let fenceHeight = 30; // Fence height is constant for now
                 fences.push({ x: canvas.width, y: canvas.height - fenceHeight, height: fenceHeight });
                 spawnCounter = 0;
             }
@@ -183,10 +182,15 @@
         }
 
         function checkCollision() {
-            for (let fence of fences) {
-                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && 
-                    chick.y + chick.height > fence.y) {
+            for (let i = fences.length - 1; i >= 0; i--) {
+                const fence = fences[i];
+                if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && chick.y + chick.height > fence.y) {
                     isGameOver = true;
+                } else if (chick.x + chick.width > fence.x && chick.x < fence.x + 20 && chick.y < fence.y) {
+                    // Increment score only if chick hops over the fence
+                    score++;
+                    document.getElementById('scoreboard').innerHTML = `Score: ${score}`;
+                    fences.splice(i, 1); // Remove the fence after jumping over it
                 }
             }
         }
@@ -203,8 +207,8 @@
         }
 
         canvas.addEventListener('click', () => {
-            if (!chick.isJumping) {
-                chick.velocityY = -10;
+            if (!chick.isJumping && !isGameOver) {
+                chick.velocityY = chick.jumpStrength; // Adjusted jump on tap
                 chick.isJumping = true;
             }
         });
