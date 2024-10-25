@@ -272,6 +272,14 @@
             document.getElementById('scoreboard').style.display = 'none';
             startGame();
         });
+
+        // Handle space key for jumping
+        document.addEventListener('keydown', function (e) {
+            if (e.code === 'Space' && !chick.isJumping) {
+                chick.velocityY = -10; // Jump height
+                chick.isJumping = true;
+            }
+        });
     </script>
 </body>
 </html>
