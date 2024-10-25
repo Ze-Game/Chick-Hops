@@ -12,10 +12,21 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f8ff;
-            font-family: Arial, sans-serif;
+            background-color: #e0f7fa; /* Light blue background */
+            font-family: 'Arial', sans-serif;
             color: #333;
             position: relative;
+            transition: background-color 0.5s;
+        }
+        h1 {
+            font-size: 3em;
+            color: #ff6f00; /* Orange color for title */
+            margin: 10px 0;
+        }
+        h2 {
+            font-size: 2em;
+            color: #d32f2f; /* Red color for game over text */
+            margin: 10px 0;
         }
         canvas {
             display: none; /* Hide canvas initially */
@@ -31,6 +42,7 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             position: absolute; /* Position the screens absolutely */
+            transition: transform 0.3s; /* Smooth appearance */
         }
         #startButton, #restartButton {
             display: block;
@@ -40,22 +52,32 @@
             cursor: pointer;
             border: none;
             border-radius: 5px;
-            background-color: #4CAF50;
+            background-color: #4CAF50; /* Green background */
             color: white;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
         #startButton:hover, #restartButton:hover {
             background-color: #45a049;
+            transform: scale(1.05); /* Slightly enlarge button on hover */
         }
-        #gameOverScreen {
-            display: none; /* Hide game over screen initially */
+        #usernameInput {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+            margin: 10px auto;
+            font-size: 16px;
         }
         #scoreboard {
-            font-size: 20px; 
+            font-size: 24px; 
             display: none; /* Hide scoreboard initially */
+            color: #1976d2; /* Blue color for score */
         }
-        h1, h2 {
-            margin: 0;
+        #quote {
+            font-size: 18px;
+            color: #ff5722; /* Color for quotes */
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -63,7 +85,7 @@
     <!-- Start Screen -->
     <div id="startScreen">
         <h1>Chick Hops</h1>
-        <div id="welcomeBack" class="hidden">Welcome back!</div>
+        <div id="welcomeBack" class="hidden"></div>
         <input id="usernameInput" type="text" placeholder="Enter Username" class="hidden" />
         <button id="startButton">Start Game</button>
     </div>
