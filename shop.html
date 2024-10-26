@@ -2,19 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
     <title>Chick Hop - Shop</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="shop-page">
     <div class="container">
-        <h1>Shop</h1>
-        <div id="skins">
-            <!-- Chick skins will be added here by JavaScript -->
+        <h1 class="page-title">Shop</h1>
+        <div class="coins-display">Coins: <span id="coins">0</span></div>
+        <div class="skins">
+            <!-- Example for one skin, repeat similar blocks for each -->
+            <div class="skin" onclick="buySkin('blue')">
+                <div class="skin-color blue"></div>
+                <p>Blue Chick - 100 Coins</p>
+            </div>
+            <!-- Repeat for all 10 colors -->
         </div>
-        <button id="back-button">Back to Start</button>
     </div>
 
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
-</html>
+    </html>
+    
