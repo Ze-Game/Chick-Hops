@@ -1,56 +1,64 @@
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    margin: 0;
     font-family: 'Arial', sans-serif;
     background-color: #E8F0F2;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    margin: 0;
 }
 
 .container {
-    text-align: center;
+    background-color: white;
+    width: 90%;
+    max-width: 350px;
+    height: 80%;
+    max-height: 600px;
     border: 3px solid #4CAF50;
     border-radius: 15px;
+    text-align: center;
     padding: 20px;
-    background-color: white;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 350px; /* Set a maximum width for mobile view */
-    height: 80%; /* Set a height for container */
-    overflow: hidden; /* Prevent overflow */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 h1 {
     color: #4CAF50;
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 
 h2 {
     font-size: 18px;
+    margin-bottom: 20px;
 }
 
-input {
+input[type="text"] {
     padding: 10px;
-    margin-top: 10px;
     border: 2px solid #4CAF50;
     border-radius: 5px;
     width: 100%;
+    margin-bottom: 20px;
 }
 
 button {
-    padding: 12px 20px;
-    margin: 10px;
-    background-color: #4CAF50;
-    color: white;
+    padding: 12px;
+    margin-top: 10px;
+    width: 100%;
     border: none;
     border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
     cursor: pointer;
-    transition: background-color 0.3s;
-    width: 100%;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
@@ -58,11 +66,13 @@ button:hover {
 }
 
 .scoreboard {
-    font-size: 20px;
-    margin-top: 10px;
+    font-size: 18px;
     font-weight: bold;
+    margin-top: 10px;
 }
 
 canvas {
     border: 2px solid #4CAF50;
-}
+    display: block;
+    margin: 0 auto;
+    }
