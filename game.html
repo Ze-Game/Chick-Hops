@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game</title>
+    <title>Chick Hop - Game</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-    <canvas id="gameCanvas" width="320" height="480"></canvas>
-    <div id="scoreboard">Score: 0</div>
+<body class="game-page">
+    <div class="game-window">
+        <canvas id="gameCanvas"></canvas>
+        <div class="score-display">Score: <span id="score">0</span></div>
+    </div>
 
     <script src="js/script.js"></script>
 </body>
