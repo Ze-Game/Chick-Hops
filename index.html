@@ -2,17 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chick Hop</title>
+    <title>Chick Hop - Welcome</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-    <div class="centered-container">
-        <h1>Chick Hop</h1>
-        <h3 id="welcome-back">Welcome back, User!</h3>
-        <input type="text" id="username" placeholder="Enter your username">
-        <button id="start-button">Start</button>
-        <button id="shop-button">Shop</button>
+<body class="welcome-page">
+    <div class="container">
+        <h1 class="game-title">Chick Hop</h1>
+        <h2 class="welcome-message">Welcome back, <span id="usernameDisplay">Player</span>!</h2>
+        <button class="button" onclick="startGame()">Start Game</button>
+        <button class="button" onclick="goToShop()">Shop</button>
     </div>
 
     <script src="js/script.js"></script>
