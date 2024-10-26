@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Chick Hop - Game</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/game.css">
 </head>
 <body class="game-page">
-    <div class="game-window">
-        <canvas id="gameCanvas"></canvas>
-        <div class="score-display">Score: <span id="score">0</span></div>
+    <div class="game-container">
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="game-window" id="gameWindow">
+            <div class="chick" id="chick"></div>
+            <div class="fence" id="fence"></div>
+        </div>
     </div>
 
-    <script src="js/script.js"></script>
+    <script src="js/game.js"></script>
 </body>
 </html>
