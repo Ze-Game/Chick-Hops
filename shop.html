@@ -3,23 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Chick Hop - Shop</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/shop.css">
 </head>
 <body class="shop-page">
-    <div class="container">
-        <h1 class="page-title">Shop</h1>
-        <div class="coins-display">Coins: <span id="coins">0</span></div>
-        <div class="skins">
-            <!-- Example for one skin, repeat similar blocks for each -->
-            <div class="skin" onclick="buySkin('blue')">
-                <div class="skin-color blue"></div>
-                <p>Blue Chick - 100 Coins</p>
-            </div>
-            <!-- Repeat for all 10 colors -->
+    <div class="shop-container">
+        <h1 class="shop-heading">Shop</h1>
+        <div class="coins">Coins: <span id="coins">0</span></div>
+        <div class="shop-items">
+            <div class="item" onclick="buySkin('blue')">Blue Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('green')">Green Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('red')">Red Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('orange')">Orange Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('purple')">Purple Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('gray')">Gray Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('black')">Black Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('brown')">Brown Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('peach')">Peach Chick (100 coins)</div>
+            <div class="item" onclick="buySkin('pink')">Pink Chick (100 coins)</div>
         </div>
+        <button class="back-button" onclick="goBack()">Back to Start</button>
     </div>
 
-    <script src="js/script.js"></script>
+    <script src="js/shop.js"></script>
 </body>
-    </html>
-    
+</html>
