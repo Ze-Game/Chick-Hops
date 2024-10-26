@@ -2,17 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Chick Hop - Welcome</title>
+    <title>Chick Hop - Start</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="welcome-page">
     <div class="container">
         <h1 class="game-title">Chick Hop</h1>
-        <h2 class="welcome-message">Welcome back, <span id="usernameDisplay">Player</span>!</h2>
-        <button class="button" onclick="startGame()">Start Game</button>
-        <button class="button" onclick="goToShop()">Shop</button>
+
+        <!-- Username Section -->
+        <div id="usernameSection">
+            <label for="username">Enter Your Username:</label>
+            <input type="text" id="username" placeholder="Enter username">
+            <button class="button" onclick="saveUsername()">Save</button>
+        </div>
+
+        <!-- Welcome Message -->
+        <div id="welcomeMessage" style="display: none;">
+            <h2>Welcome back, <span id="userDisplay"></span>!</h2>
+        </div>
+
+        <!-- Buttons for Game and Shop -->
+        <button class="button" id="startButton" style="display: none;" onclick="startGame()">Start Game</button>
+        <button class="button" id="shopButton" style="display: none;" onclick="goToShop()">Shop</button>
     </div>
 
-    <script src="js/script.js"></script>
+    <script>
+        // Check for an existing username
+        window.onload = function() {
+            const storedUsername = localStorage.getItem('username');
+            if (storedUsername) {
+                document.getElementById('usernameSection').style.display = 'none';
+                document.getElementById('welcomeMessage').style.display = 'block';
+                document.getElementById('userDisplay').textContent = storedUsername;
+                document.getElementById('startButton').style.display = 'block';
+                document.getElementById('shopButton').style.display = 'block';
+            }
+        };
+
+        // Save the username
+        function saveUsername() {
+            const username = document.getElementById('username').value;
+            if (username) {
+                localStorage.setItem('username', username);
+                document.getElementById('usernameSection').style.display = 'none';
+                document.getElementById('welcomeMessage').style.display = 'block';
+                document.getElementById('userDisplay').textContent = username;
+                document.getElementById('startButton').style.display = 'block';
+                document.getElementById('shopButton').style.display = 'block';
+            }
+        }
+
+        // Placeholder functions for button actions
+        function startGame() {
+            // To be implemented later
+        }
+
+        function goToShop() {
+            // To be implemented later
+        }
+    </script>
 </body>
-</html>
+        </html>
+        
