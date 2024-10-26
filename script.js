@@ -1,139 +1,131 @@
-let username = localStorage.getItem('username') || '';
-let score = 0;
-let coins = 0;
-let highScore = parseInt(localStorage.getItem('highScore')) || 0;
-let gameInterval;
-let fenceSpeed = 2; // Initial speed of fences
-let fenceCount = 0; // Count of fences passed
+// Common elements
+const welcomeBackMessage = document.getElementById('welcome-back');
+const usernameInput = document.getElementById('username');
+const startButton = document.getElementById('start-button');
+const shopButton = document.getElementById('shop-button');
 
-document.addEventListener('DOMContentLoaded', () => {
+// Game elements
+let gameCanvas, ctx;
+let chick, fences, gameInterval, score, coins, speedMultiplier, isGameOver;
+
+// Get stored username if available
+const storedUsername = localStorage.getItem('username');
+if (storedUsername) {
+    welcomeBackMessage.innerText = `Welcome back, ${storedUsername}!`;
+} else {
+    usernameInput.style.display = 'block';
+}
+
+// Set username on user input
+usernameInput.addEventListener('change', () => {
+    const username = usernameInput.value.trim();
     if (username) {
-        document.getElementById('welcome-back').innerText = `Welcome back, ${username}!`;
-    } else {
-        document.getElementById('username').style.display = 'block';
-    }
-
-    document.getElementById('start-button').onclick = startGame;
-    document.getElementById('shop-button').onclick = showShop;
-    document.getElementById('back-button').onclick = () => window.location.href = 'index.html';
-    document.getElementById('restart-button').onclick = restartGame;
-
-    if (document.getElementById('skins')) {
-        loadShop();
-    }
-
-    if (document.getElementById('gameCanvas')) {
-        initGame();
-    }
-
-    if (document.getElementById('final-score')) {
-        displayGameOver();
+        localStorage.setItem('username', username);
+        welcomeBackMessage.innerText = `Welcome back, ${username}!`;
+        usernameInput.style.display = 'none';
     }
 });
 
-// Function to start the game
-function startGame() {
-    if (!username) {
-        username = document.getElementById('username').value;
-        localStorage.setItem('username', username);
-        document.getElementById('welcome-back').innerText = `Welcome back, ${username}!`;
-    }
-    window.location.href = 'game.html'; // Redirect to the game page
-}
+// Handle button clicks to navigate pages
+startButton.addEventListener('click', () => {
+    window.location.href = 'game.html';
+});
 
-// Function to initialize the game
+shopButton.addEventListener('click', () => {
+    window.location.href = 'shop.html';
+});
+
+// Initialize the game canvas and elements for game page
 function initGame() {
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    // Chick properties
-const chick = { x: 50, y: canvas.height - 40, width: 30, height: 30, color: 'yellow' }; // Chick color updated to yellow
-    const fences = []; // Array to hold fences
-    gameInterval = setInterval(() => updateGame(ctx, chick, fences), 20); // Update game every 20ms
-
-    document.addEventListener('click', () => {
-        chick.y -= 50; // Jump height
-        setTimeout(() => {
-            chick.y += 50; // Gravity effect
-        }, 300);
-    });
-
-    // Function to update the game
-    function updateGame(ctx, chick, fences) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-
-        // Draw the chick
-        ctx.fillStyle = chick.color;
-        ctx.fillRect(chick.x, chick.y, chick.width, chick.height); // Draw the chick
-
-        // Adding new fences
-        if (fences.length < 5 || fences[fences.length - 1].x < canvas.width - 150) {
-            fences.push({ x: canvas.width, y: canvas.height - 50, width: 30, height: 50 });
-        }
-
-        // Update fences positions
-        for (let i = 0; i < fences.length; i++) {
-            fences[i].x -= fenceSpeed; // Move fences to the left
-            ctx.fillStyle = 'brown'; // Color of the fences
-            ctx.fillRect(fences[i].x, fences[i].y, fences[i].width, fences[i].height); // Draw fences
-
-            // Check for collision
-            if (fences[i].x < 80 && fences[i].x > 50 && chick.y + 30 >= fences[i].y) {
-                clearInterval(gameInterval); // Stop the game on collision
-                displayGameOver();
-            }
-
-            // Update score
-            if (fences[i].x + fences[i].width < 0) {
-                fences.splice(i, 1); // Remove passed fences
-                score++;
-                coins += 1; // Increment coins for each fence jumped over
-                if (score % 10 === 0) {
-                    fenceSpeed += 1; // Increase speed every 10 fences
-                }
-                i--; // Adjust index after splicing
-            }
-        }
-
-        // Update scoreboard
-        document.getElementById('scoreboard').innerText = `Score: ${score} Coins: ${coins}`;
-    }
-}
-
-// Function to load the shop
-function loadShop() {
-    const skins = ['blue', 'green', 'red', 'orange', 'purple', 'gray', 'black', 'brown', 'peach', 'pink'];
-    const skinsDiv = document.getElementById('skins');
-
-    skins.forEach(color => {
-        const skinButton = document.createElement('button');
-        skinButton.innerText = `${color.charAt(0).toUpperCase() + color.slice(1)} Chick - 100 Coins`;
-        skinButton.onclick = () => buySkin(color);
-        skinsDiv.appendChild(skinButton);
-    });
-}
-
-// Function to buy a skin
-function buySkin(color) {
-    if (coins >= 100) {
-        coins -= 100; // Deduct coins
-        localStorage.setItem('coins', coins); // Save coins
-        alert(`You bought a ${color} chick!`);
-    } else {
-        alert("Not enough coins!");
-    }
-}
-
-// Function to display game over
-function displayGameOver() {
-    document.getElementById('final-score').innerText = `Final Score: ${score}`;
-    document.getElementById('high-score').innerText = `High Score: ${highScore}`;
-    localStorage.setItem('coins', coins); // Save coins to localStorage
-}
-
-// Function to restart the game
-function restartGame() {
+    gameCanvas = document.getElementById('gameCanvas');
+    ctx = gameCanvas.getContext('2d');
     score = 0;
     coins = parseInt(localStorage.getItem('coins')) || 0;
-    fenceSpeed = 2;
-    window.location.href = 'game.html'; // Restart the game
+    speedMultiplier = 1;
+    isGameOver = false;
+
+    // Chick properties
+    chick = { x: 50, y: gameCanvas.height - 40, width: 30, height: 30, color: 'yellow', jump: false, jumpHeight: 60 };
+
+    // Fences array
+    fences = [];
+    createFence();
+
+    // Add score and coins display
+    document.getElementById('scoreboard').innerText = `Score: ${score} Coins: ${coins}`;
+
+    // Start the game loop
+    gameInterval = setInterval(updateGame, 1000 / 60);
+
+    // Handle chick jump on tap
+    gameCanvas.addEventListener('click', () => {
+        if (!isGameOver) chick.jump = true;
+    });
+}
+
+// Create a new fence and add it to the array
+function createFence() {
+    const fence = { x: gameCanvas.width, y: gameCanvas.height - 40, width: 30, height: 40, speed: 2 * speedMultiplier };
+    fences.push(fence);
+}
+
+// Update the game state and render elements
+function updateGame() {
+    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+    // Handle chick jumping
+    if (chick.jump) {
+        chick.y -= 4;
+        if (chick.y <= gameCanvas.height - chick.jumpHeight) {
+            chick.jump = false;
         }
+    } else if (chick.y < gameCanvas.height - 40) {
+        chick.y += 4;
+    }
+
+    // Render the chick
+    ctx.fillStyle = chick.color;
+    ctx.fillRect(chick.x, chick.y, chick.width, chick.height);
+
+    // Update and render fences
+    fences.forEach((fence, index) => {
+        fence.x -= fence.speed;
+        if (fence.x + fence.width < 0) {
+            fences.splice(index, 1);
+            score += 1;
+            if (score % 10 === 0) speedMultiplier += 0.5;
+            createFence();
+        }
+
+        // Check for collision with the chick
+        if (
+            chick.x < fence.x + fence.width &&
+            chick.x + chick.width > fence.x &&
+            chick.y < fence.y + fence.height &&
+            chick.y + chick.height > fence.y
+        ) {
+            endGame();
+        }
+
+        // Draw the fence
+        ctx.fillStyle = 'green';
+        ctx.fillRect(fence.x, fence.y, fence.width, fence.height);
+    });
+
+    // Update score and speed based on fence progress
+    document.getElementById('scoreboard').innerText = `Score: ${score} Coins: ${coins}`;
+}
+
+// End the game and handle game-over page navigation
+function endGame() {
+    clearInterval(gameInterval);
+    isGameOver = true;
+    coins += score;
+    localStorage.setItem('coins', coins);
+    window.location.href = 'gameover.html';
+}
+
+// Call this function on the game page to initialize everything
+if (window.location.pathname.includes('game.html')) {
+    window.onload = initGame;
+            }
