@@ -45,7 +45,8 @@ function startGame() {
 function initGame() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const chick = { x: 50, y: canvas.height - 40, width: 30, height: 30, color: 'yellow' }; // Chick properties
+    // Chick properties
+const chick = { x: 50, y: canvas.height - 40, width: 30, height: 30, color: 'yellow' }; // Chick color updated to yellow
     const fences = []; // Array to hold fences
     gameInterval = setInterval(() => updateGame(ctx, chick, fences), 20); // Update game every 20ms
 
