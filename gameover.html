@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Chick Hop - Game Over</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/gameover.css">
 </head>
 <body class="gameover-page">
-    <div class="container">
-        <h1 class="page-title">Game Over</h1>
-        <div class="final-score">Final Score: <span id="finalScoreDisplay">0</span></div>
-        <div class="high-score">High Score: <span id="highScoreDisplay">0</span></div>
-        <button class="button" onclick="restartGame()">Restart Game</button>
-        <button class="button" onclick="goToShop()">Shop</button>
+    <div class="gameover-container">
+        <h1 class="gameover-heading">Game Over</h1>
+        <div class="final-score">Final Score: <span id="final-score">0</span></div>
+        <div class="high-score">High Score: <span id="high-score">0</span></div>
+        <div class="coins-converted">Coins: <span id="coins-converted">0</span></div>
+        <button class="restart-button" onclick="restartGame()">Restart</button>
+        <button class="shop-button" onclick="goToShop()">Shop</button>
     </div>
 
-    <script src="js/script.js"></script>
+    <script src="js/gameover.js"></script>
 </body>
 </html>
