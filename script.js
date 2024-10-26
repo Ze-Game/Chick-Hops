@@ -1,131 +1,158 @@
-// Common elements
-const welcomeBackMessage = document.getElementById('welcome-back');
-const usernameInput = document.getElementById('username');
-const startButton = document.getElementById('start-button');
-const shopButton = document.getElementById('shop-button');
+// JavaScript for all pages
+document.addEventListener('DOMContentLoaded', () => {
+    const startPage = document.getElementById('startPage');
+    const gamePage = document.getElementById('gamePage');
+    const gameOverPage = document.getElementById('gameOverPage');
+    const usernameInput = document.getElementById('username-input');
+    const welcomeBack = document.getElementById('welcome-back');
 
-// Game elements
-let gameCanvas, ctx;
-let chick, fences, gameInterval, score, coins, speedMultiplier, isGameOver;
+    const username = localStorage.getItem('username');
+    if (username) {
+        usernameInput.style.display = 'none';
+        welcomeBack.innerText = `Welcome back, ${username}!`;
+    }
 
-// Get stored username if available
-const storedUsername = localStorage.getItem('username');
-if (storedUsername) {
-    welcomeBackMessage.innerText = `Welcome back, ${storedUsername}!`;
-} else {
-    usernameInput.style.display = 'block';
-}
+    startPage.style.display = 'block'; // Show the starting page
 
-// Set username on user input
-usernameInput.addEventListener('change', () => {
+    usernameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            saveUsername();
+        }
+    });
+});
+
+function saveUsername() {
+    const usernameInput = document.getElementById('username-input');
     const username = usernameInput.value.trim();
     if (username) {
         localStorage.setItem('username', username);
-        welcomeBackMessage.innerText = `Welcome back, ${username}!`;
-        usernameInput.style.display = 'none';
+        window.location.reload(); // Reload page to show welcome message
     }
-});
-
-// Handle button clicks to navigate pages
-startButton.addEventListener('click', () => {
-    window.location.href = 'game.html';
-});
-
-shopButton.addEventListener('click', () => {
-    window.location.href = 'shop.html';
-});
-
-// Initialize the game canvas and elements for game page
-function initGame() {
-    gameCanvas = document.getElementById('gameCanvas');
-    ctx = gameCanvas.getContext('2d');
-    score = 0;
-    coins = parseInt(localStorage.getItem('coins')) || 0;
-    speedMultiplier = 1;
-    isGameOver = false;
-
-    // Chick properties
-    chick = { x: 50, y: gameCanvas.height - 40, width: 30, height: 30, color: 'yellow', jump: false, jumpHeight: 60 };
-
-    // Fences array
-    fences = [];
-    createFence();
-
-    // Add score and coins display
-    document.getElementById('scoreboard').innerText = `Score: ${score} Coins: ${coins}`;
-
-    // Start the game loop
-    gameInterval = setInterval(updateGame, 1000 / 60);
-
-    // Handle chick jump on tap
-    gameCanvas.addEventListener('click', () => {
-        if (!isGameOver) chick.jump = true;
-    });
 }
 
-// Create a new fence and add it to the array
-function createFence() {
-    const fence = { x: gameCanvas.width, y: gameCanvas.height - 40, width: 30, height: 40, speed: 2 * speedMultiplier };
+function startGame() {
+    document.getElementById('startPage').style.display = 'none';
+    document.getElementById('gamePage').style.display = 'block';
+    initGame();
+}
+
+function goToShop() {
+    alert("Shop feature is not implemented yet.");
+}
+
+let canvas = document.getElementById('gameCanvas');
+let ctx = canvas.getContext('2d');
+let score = 0;
+let highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
+let fenceSpeed = 2;
+let fencesPassed = 0;
+let fences = [];
+let gameOver = false;
+
+const chick = {
+    x: 50,
+    y: 300,
+    width: 30,
+    height: 30,
+    color: 'yellow',
+    draw: function () {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height); // Draw chick as a rectangle
+    },
+    jump: function () {
+        if (this.y === 300) { // Only jump if on the ground
+            this.y -= 60; // Jump height
+            setTimeout(() => {
+                this.y += 60; // Return to ground after jump
+            }, 300);
+        }
+    }
+};
+
+function addFence() {
+    const fence = {
+        x: canvas.width,
+        y: 320,
+        width: 10,
+        height: 20,
+    };
     fences.push(fence);
 }
 
-// Update the game state and render elements
-function updateGame() {
-    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-    // Handle chick jumping
-    if (chick.jump) {
-        chick.y -= 4;
-        if (chick.y <= gameCanvas.height - chick.jumpHeight) {
-            chick.jump = false;
-        }
-    } else if (chick.y < gameCanvas.height - 40) {
-        chick.y += 4;
-    }
-
-    // Render the chick
-    ctx.fillStyle = chick.color;
-    ctx.fillRect(chick.x, chick.y, chick.width, chick.height);
-
-    // Update and render fences
-    fences.forEach((fence, index) => {
-        fence.x -= fence.speed;
-        if (fence.x + fence.width < 0) {
-            fences.splice(index, 1);
-            score += 1;
-            if (score % 10 === 0) speedMultiplier += 0.5;
-            createFence();
-        }
-
-        // Check for collision with the chick
-        if (
-            chick.x < fence.x + fence.width &&
-            chick.x + chick.width > fence.x &&
-            chick.y < fence.y + fence.height &&
-            chick.y + chick.height > fence.y
-        ) {
-            endGame();
-        }
-
-        // Draw the fence
-        ctx.fillStyle = 'green';
-        ctx.fillRect(fence.x, fence.y, fence.width, fence.height);
-    });
-
-    // Update score and speed based on fence progress
-    document.getElementById('scoreboard').innerText = `Score: ${score} Coins: ${coins}`;
+function initGame() {
+    score = 0;
+    fencesPassed = 0;
+    fences = [];
+    fenceSpeed = 2;
+    gameOver = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    update();
+    setInterval(addFence, 2000); // Add a new fence every 2 seconds
 }
 
-// End the game and handle game-over page navigation
-function endGame() {
-    clearInterval(gameInterval);
-    isGameOver = true;
-    coins += score;
-    localStorage.setItem('coins', coins);
-    window.location.href = 'gameover.html';
-}
+function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    chick.draw();
+    
+    if (!gameOver) {
+        for (let i = 0; i < fences.length; i++) {
+            const fence = fences[i];
+            fence.x -= fenceSpeed;
+            ctx.fillStyle = 'brown';
+            ctx.fillRect(fence.x, fence.y, fence.width, fence.height);
 
-// Call this function on the game page to initialize everything
-if (window.location.pathname.includes('game.html')) {
-    window.onload = initGame;
+            // Check for collision
+            if (chick.x < fence.x + fence.width && chick.x + chick.width > fence.x && chick.y + chick.height > fence.y) {
+                gameOver = true;
+                localStorage.setItem('finalScore', score);
+                if (score > highScore) {
+                    localStorage.setItem('highScore', score);
+                }
             }
+
+            // Increment score and speed
+            if (fence.x + fence.width < 0) {
+                fencesPassed++;
+                score++;
+                if (fencesPassed % 10 === 0) {
+                    fenceSpeed += 0.5; // Increase speed every 10 fences passed
+                }
+                fences.splice(i, 1); // Remove fence
+                i--; // Adjust index
+            }
+        }
+
+        document.getElementById('score').innerText = `Score: ${score}`;
+        requestAnimationFrame(update);
+    } else {
+        endGame();
+    }
+}
+
+function endGame() {
+    const finalScore = document.getElementById('final-score');
+    const highScoreDisplay = document.getElementById('high-score');
+    const coinsConverted = document.getElementById('coins-converted');
+    finalScore.innerText = score;
+    highScoreDisplay.innerText = highScore;
+    coinsConverted.innerText = score; // Score is converted to coins
+    document.getElementById('gamePage').style.display = 'none';
+    document.getElementById('gameOverPage').style.display = 'block';
+}
+
+function restartGame() {
+    document.getElementById('gameOverPage').style.display = 'none';
+    document.getElementById('startPage').style.display = 'block'; // Go back to start page
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !gameOver) {
+        chick.jump();
+    }
+});
+
+canvas.addEventListener('click', () => {
+    if (!gameOver) {
+        chick.jump();
+    }
+});
